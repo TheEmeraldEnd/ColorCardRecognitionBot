@@ -1,0 +1,11 @@
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\bin\Debug\DataPrepper.exe.config
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\bin\Debug\DataPrepper.exe
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\bin\Debug\DataPrepper.pdb
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\obj\Debug\DataPrepper.csproj.AssemblyReference.cache
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\obj\Debug\DataPrepper.csproj.CoreCompileInputs.cache
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\obj\Debug\DataPrep.DFFFD49B.Up2Date
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\obj\Debug\DataPrepper.exe
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\obj\Debug\DataPrepper.pdb
+C:\Users\Owner\Documents\GitHub\ColorCardRecognitionBot\DataPrepper\obj\Debug\DataPrepper.exe.config
