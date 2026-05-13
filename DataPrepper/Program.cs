@@ -11,6 +11,7 @@ namespace DataPrepper
     {
         static void Main(string[] args)
         {
+            DataConfigHandler.RefreshDataConfigFileAndDirectories();
         }
     }
 }
