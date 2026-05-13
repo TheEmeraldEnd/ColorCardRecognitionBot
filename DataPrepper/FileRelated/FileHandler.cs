@@ -34,13 +34,34 @@ namespace DataPrepper.FileRelated
 
             string fileAndDirectoryPath = $"{incomingDirectory}/{incomingFileName}";
 
-            if (!IsFileExist(fileAndDirectoryPath))
-            {
-                File.Create(fileAndDirectoryPath);
-            }
-
             File.WriteAllText(fileAndDirectoryPath, content);
             Console.WriteLine("Write Successful");
+        }
+
+        /// <summary>
+        /// Creates directories to a specified directory on path. 
+        ///     Emphasis on ENSURE.
+        /// </summary>
+        /// <param name="incomingDirectoryPath"></param>
+        public static void EnsurePriorDirectoriesExist(string incomingDirectoryPath)
+        {
+            Directory.CreateDirectory(incomingDirectoryPath);
+        }
+
+        public static void DeleteFile(string incomingFileAndPath)
+        {
+            if (IsFileExist(incomingFileAndPath))
+            {
+                File.Delete(incomingFileAndPath);
+            }
+        }
+
+        public static void DeleteDirectory(string incomingDirectoryAndPath)
+        {
+            if (IsDirectoryExist(incomingDirectoryAndPath))
+            {
+                Directory.Delete(incomingDirectoryAndPath);
+            }
         }
     }
 }

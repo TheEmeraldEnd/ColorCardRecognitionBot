@@ -55,6 +55,16 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="DataDefaults\Data_Options\%28Spell%29_Humongofrog.png" />
+    <Content Include="DataDefaults\Data_Options\%28Spell%29_Orthrus.png" />
+    <Content Include="DataDefaults\Data_Options\%28Spell%29_Time_of_Legend.png" />
+    <Content Include="DataDefaults\Data_Test\%28Spell%29_Humongofrog.png" />
+    <Content Include="DataDefaults\Data_Test\%28Spell%29_Orthrus.png" />
+    <Content Include="DataDefaults\Data_Test\%28Spell%29_Time_of_Legend.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataDefaults\Data_Templates\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

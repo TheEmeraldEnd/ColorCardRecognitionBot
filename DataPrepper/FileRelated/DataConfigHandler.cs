@@ -12,6 +12,14 @@ namespace DataPrepper.FileRelated
         {
             public static string DataConfigFilePath = "../../";
             public static string DataConfigFileName = "DataConfig.txt";
+
+            public static string NameAndPath
+            {
+                get
+                {
+                    return DataConfigFilePath + "/" + DataConfigFileName;
+                }
+            }
         }
 
         [Serializable]
@@ -49,12 +57,12 @@ namespace DataPrepper.FileRelated
                 {
                     return new DataConfigContent
                     {
-                        RawTrainingTemplatesPath = "../../../DataRelated/Data/Data_Raw_Templates",
+                        RawTrainingTemplatesPath = "../../DataDefaults/Data_Templates",
                         RawTrainingImagesPath = "../../../DataRelated/Data/Data_Training/Data_Raw_Training",
                         TrainingHistogramsColorfulPath = "../../../DataRelated/Data/Data_Training/Data_Histogram_Color",
                         TrainingHistogramsMonochromePath = "../../../DataRelated/Data/Data_Training/Data_Histogram_Monochrome",
-                        OptionsPath = "../../../DataRelated/Data/Data_Options",
-                        TestsPath = "../../../DataRelated/Data/Data_Test"
+                        OptionsPath = "../../DataDefaults/Data_Options",
+                        TestsPath = "../../DataDefaults/Data_Test"
                     };
                 }
             }
@@ -82,12 +90,36 @@ namespace DataPrepper.FileRelated
             return Newtonsoft.Json.JsonConvert.SerializeObject(DataConfigContent.DefaultDataConfigContent);
         }
 
-        public static void GenerateDataConfigFile()
+        public static void RefreshDataConfigFileAndDirectories()
+        {
+            GenerateDefaultDataConfigFile();
+            GenerateDefaultDirectories();
+        }
+
+        private static void GenerateDefaultDataConfigFile()
         {
             FileHandler.WriteTextFile(
                 DataConfigInfo.DataConfigFilePath,
                 DataConfigInfo.DataConfigFileName,
                 SerializeJSON());
+        }
+
+        private static void GenerateDefaultDirectories()
+        {
+            string[] allDefaultDirectories = DataConfigContent.DefaultDataConfigContent.GetAllFilePaths();
+            foreach(var path in allDefaultDirectories)
+            {
+                FileHandler.EnsurePriorDirectoriesExist(path);
+            }
+        }
+
+        private static void DeleteDefaultDirectoriesAndFile()
+        {
+            FileHandler.DeleteDirectory(DataConfigContent.DefaultDataConfigContent.RawTrainingImagesPath);
+            FileHandler.DeleteDirectory(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsColorfulPath);
+            FileHandler.DeleteDirectory(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsMonochromePath);
+
+            FileHandler.DeleteFile(DataConfigInfo.NameAndPath);
         }
     }
 }
