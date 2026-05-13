@@ -59,12 +59,34 @@
     <Content Include="DataDefaults\Data_Options\%28Spell%29_Humongofrog.png" />
     <Content Include="DataDefaults\Data_Options\%28Spell%29_Orthrus.png" />
     <Content Include="DataDefaults\Data_Options\%28Spell%29_Time_of_Legend.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Humongofrog %281%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Humongofrog %282%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Humongofrog %283%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Humongofrog %284%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Humongofrog %285%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Humongofrog %286%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Humongofrog %287%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Humongofrog.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Orthrus %281%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Orthrus %282%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Orthrus %283%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Orthrus %284%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Orthrus %285%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Orthrus %286%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Orthrus %287%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Orthrus.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Time_of_Legend %281%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Time_of_Legend %282%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Time_of_Legend %283%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Time_of_Legend %284%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Time_of_Legend %285%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Time_of_Legend %286%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Time_of_Legend %287%29.png" />
+    <Content Include="DataDefaults\Data_Templates\%28Spell%29_Time_of_Legend.png" />
     <Content Include="DataDefaults\Data_Test\%28Spell%29_Humongofrog.png" />
     <Content Include="DataDefaults\Data_Test\%28Spell%29_Orthrus.png" />
     <Content Include="DataDefaults\Data_Test\%28Spell%29_Time_of_Legend.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DataDefaults\Data_Templates\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
