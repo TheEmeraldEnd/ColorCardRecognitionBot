@@ -84,13 +84,41 @@ namespace DataPrepper.FileRelated
             }
         }
 
-        public static string SerializeJSON()
+        
+        public static DataConfigContent AlteredDataConfigContent
         {
-            //Temporary until a customizable deserailized version of the content can be figured out
-            return Newtonsoft.Json.JsonConvert.SerializeObject(DataConfigContent.DefaultDataConfigContent);
+            get;
+            set;
         }
 
-        public static void RefreshDataConfigFileAndDirectories()
+        public static void DeserializeThenGenerate()
+        {
+            DeserializeJSON();
+            GenerateDataConfigFileAndDirectories();
+        }
+
+        public static string SerializeJSON()
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(AlteredDataConfigContent);
+        }
+
+        public static void SetToDefault()
+        {
+            AlteredDataConfigContent = DataConfigContent.DefaultDataConfigContent;
+        }
+
+        public static void DeserializeJSON()
+        {
+            if (!FileHandler.IsFileExist(DataConfigInfo.NameAndPath))
+            {
+                GenerateDataConfigFileAndDirectories();
+            }
+            string incomingJSON = FileHandler.ReadTextFileContent(DataConfigInfo.NameAndPath);
+            var thing = Newtonsoft.Json.JsonConvert.DeserializeObject<DataConfigContent>(incomingJSON);
+            AlteredDataConfigContent = Newtonsoft.Json.JsonConvert.DeserializeObject<DataConfigContent>(incomingJSON);
+        }
+
+        public static void GenerateDataConfigFileAndDirectories()
         {
             GenerateDefaultDataConfigFile();
             GenerateDefaultDirectories();
@@ -113,7 +141,7 @@ namespace DataPrepper.FileRelated
             }
         }
 
-        private static void DeleteDefaultDirectoriesAndFile()
+        public static void DeleteDefaultDirectoriesAndFile()
         {
             FileHandler.DeleteDirectory(DataConfigContent.DefaultDataConfigContent.RawTrainingImagesPath);
             FileHandler.DeleteDirectory(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsColorfulPath);

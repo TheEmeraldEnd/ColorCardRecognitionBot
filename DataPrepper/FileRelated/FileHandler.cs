@@ -63,5 +63,11 @@ namespace DataPrepper.FileRelated
                 Directory.Delete(incomingDirectoryAndPath);
             }
         }
+
+        public static string ReadTextFileContent(string incomingFileAndPath)
+        {
+            Console.WriteLine(IsFileExist(incomingFileAndPath));
+            return File.ReadAllText(incomingFileAndPath);
+        }
     }
 }
