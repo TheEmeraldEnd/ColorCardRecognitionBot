@@ -117,6 +117,17 @@ namespace DataPrepper.Console_Related
                     GoodComputerTalk("Data not deleted (whew)...");
                 }
             }
+            else if (incomingCommand == nameof(GenerateExample).ToUpper())
+            {
+                GoodComputerTalk("Ooh, doing a demonstration? How exciting!");
+                NeutralComputerTalk("Commencing example generation...");
+                GenerateExample();
+                GoodComputerTalk("Generation Complete!");
+            }
+            else if (incomingCommand == nameof(Help) || incomingCommand == "?")
+            {
+                Help();
+            }
             else
             {
                 if (!_exitCommands.Contains(incomingCommand.ToUpper()))
@@ -135,27 +146,55 @@ namespace DataPrepper.Console_Related
                 newBitmapSubsection.BitmapName);
         }
 
+        public static void GenerateExample()
+        {
+            BitmapSubSection newBitmapSubsection =
+                TemplateRandomizer.GenerateRandomBitmapSubsectionFromTemplate(
+                    FileGrabbers.GetImageTemplatePathsAndNames());
+
+            ImageFileHandler.WritePNGImage(
+                newBitmapSubsection.BitmapSection,
+                DataConfigHandler.AlteredDataConfigContent.RawTrainingImagesPath,
+                newBitmapSubsection.BitmapName);
+        }
+
         public static void RefreshData()
         {
             DataConfigHandler.DeleteData();
             DataConfigHandler.GenerateDataConfigFileAndDirectories();
         }
 
-        public static void NeutralComputerTalk(string whatComputerIsSaying)
+        public static void Help()
+        {
+            NeutralComputerTalk("Here are the commands I've been programmed with...");
+            GoodComputerTalk(nameof(Generate));
+            GoodComputerTalk(nameof(GenerateExample));
+            GoodComputerTalk(nameof(RefreshData));
+            GoodComputerTalk(nameof(Help));
+            GoodComputerTalk("");
+
+            ErrorComputerTalk("These are to leave if you wish to...");
+            for(int i = 0; i < _exitCommands.Length; i++)
+            {
+                NeutralComputerTalk(_exitCommands[i]);
+            }
+        }
+
+        public static void NeutralComputerTalk(string whatComputerIsSaying = "")
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(whatComputerIsSaying);
             Console.ResetColor();
         }
 
-        public static void ErrorComputerTalk(string whatComputerIsSaying)
+        public static void ErrorComputerTalk(string whatComputerIsSaying = "")
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(whatComputerIsSaying);
             Console.ResetColor();
         }
 
-        public static void GoodComputerTalk(string whatComputerIsSaying)
+        public static void GoodComputerTalk(string whatComputerIsSaying = "")
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(whatComputerIsSaying);
