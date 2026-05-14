@@ -15,24 +15,28 @@ namespace DataPrepper
         {
             DataConfigHandler.DeserializeThenGenerate();
             DataConfigHandler.SetToDefault();
-            Console.WriteLine(DataConfigHandler.AlteredDataConfigContent.RawTrainingTemplatesPath);
+
+            BitmapSubSection newBitmapSubsection = 
+                TemplateRandomizer.GenerateRandomBitmapSubsectionFromTemplate(FileGrabbers.GetImageTemplatePathsAndNames());
+
+            Console.WriteLine($"Image Name = {newBitmapSubsection.BitmapName}");
+
+            var histogram = 
+                HistogramConverter.ConvertToMonochromeHistogram(
+                    newBitmapSubsection.BitmapSection,
+                    newBitmapSubsection.BitmapName,
+                    12);
+
+            HistogramFileHandler.SaveHistogramJSON(
+                HistogramConverter.SerializeJSON(histogram),
+                DataConfigHandler.AlteredDataConfigContent.TrainingHistogramsMonochromePath);
+
+            //ImageFileHandler.WritePNGImage(
+            //    newBitmapSubsection.BitmapSection, 
+            //    DataConfigHandler.AlteredDataConfigContent.RawTrainingImagesPath, 
+            //    newBitmapSubsection.BitmapName);
+
             
-            string[] imagePaths = FileHandler.GetCurrentFiles(DataConfigHandler.AlteredDataConfigContent.RawTrainingTemplatesPath);
-            string testImagePath = DataConfigHandler.AlteredDataConfigContent.RawTrainingTemplatesPath +
-                '/' +
-                imagePaths[0];
-            Console.WriteLine(FileHandler.IsFileExist(testImagePath));
-            Console.WriteLine(testImagePath);
-
-            Bitmap newBitmap = ImageFileHandler.ReadPNGImage(testImagePath);
-
-            BitmapSubSection testBitmapSubsection = BitmapSubSection.RandomizeSize(newBitmap, 0.1);
-            testBitmapSubsection.RandomizeWhitePixels();
-            
-
-            ImageFileHandler.WritePNGImage(testBitmapSubsection.BitmapSection, DataConfigHandler.AlteredDataConfigContent.RawTrainingImagesPath, "THing");
-
-
 
             //Need to test bitmap subsection area and generate training data
         }

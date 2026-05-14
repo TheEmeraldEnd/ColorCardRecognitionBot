@@ -48,9 +48,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileRelated\DataConfigHandler.cs" />
+    <Compile Include="FileRelated\FileGrabbers.cs" />
     <Compile Include="FileRelated\FileHandler.cs" />
+    <Compile Include="FileRelated\HistogramFileHandler.cs" />
     <Compile Include="FileRelated\ImageFileHandler.cs" />
     <Compile Include="GenerationRelated\BitmapSubsection.cs" />
+    <Compile Include="GenerationRelated\HistogramConverter.cs" />
     <Compile Include="RandomExtensions.cs" />
     <Compile Include="GenerationRelated\TemplateRandomizer.cs" />
     <Compile Include="Program.cs" />

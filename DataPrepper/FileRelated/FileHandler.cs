@@ -35,7 +35,6 @@ namespace DataPrepper.FileRelated
             string fileAndDirectoryPath = $"{incomingDirectory}/{incomingFileName}";
 
             File.WriteAllText(fileAndDirectoryPath, content);
-            Console.WriteLine("Write Successful");
         }
 
         /// <summary>
@@ -66,7 +65,6 @@ namespace DataPrepper.FileRelated
 
         public static string ReadTextFileContent(string incomingFileAndPath)
         {
-            Console.WriteLine(IsFileExist(incomingFileAndPath));
             return File.ReadAllText(incomingFileAndPath);
         }
     }

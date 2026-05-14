@@ -13,6 +13,7 @@ namespace DataPrepper.FileRelated
         {
             
             bitmapName = bitmapName.Replace(".bmp", "");
+            bitmapName = bitmapName.Replace(".png", "");
             incomingBitmap.Save($"{bitmapDirectory}/{bitmapName}.png", System.Drawing.Imaging.ImageFormat.Png);
         }
 
