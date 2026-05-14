@@ -124,7 +124,7 @@ namespace DataPrepper.Console_Related
                 GenerateExample();
                 GoodComputerTalk("Generation Complete!");
             }
-            else if (incomingCommand == nameof(Help) || incomingCommand == "?")
+            else if (incomingCommand == nameof(Help).ToUpper() || incomingCommand == "?")
             {
                 Help();
             }
