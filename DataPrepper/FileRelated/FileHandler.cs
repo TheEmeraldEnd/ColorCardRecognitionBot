@@ -67,5 +67,14 @@ namespace DataPrepper.FileRelated
         {
             return File.ReadAllText(incomingFileAndPath);
         }
+
+        public static void DeleteDirectoryAndFilesInside(string directoryPath)
+        {
+            if (!IsDirectoryExist(directoryPath))
+                return; 
+
+            DirectoryInfo directory = new DirectoryInfo(directoryPath);
+            directory.Delete(true);
+        }
     }
 }

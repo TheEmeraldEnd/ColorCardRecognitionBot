@@ -5,14 +5,15 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using DataPrepper.FileRelated;
 using Newtonsoft.Json;
 
 namespace DataPrepper.GenerationRelated
 {
-    public enum ColorFilter
+    public enum ValueMeasured
     {
-        Normal,
-        Monochrome
+        Color,
+        Brightness
     }
 
     public static class HistogramConverter
@@ -28,7 +29,7 @@ namespace DataPrepper.GenerationRelated
             }
 
             [JsonProperty]
-            public ColorFilter FilterType
+            public ValueMeasured FilterType
             {
                 get; set;
             }
@@ -41,7 +42,7 @@ namespace DataPrepper.GenerationRelated
 
             public Histogram(
                 string incomingName,
-                ColorFilter incomingFilter,
+                ValueMeasured incomingFilter,
                 double[] incomingColorArray)
             {
                 Name = incomingName;
@@ -49,6 +50,8 @@ namespace DataPrepper.GenerationRelated
                 ColorArray = incomingColorArray;
             }
         }
+
+        public const int defaultPercentileGroup = 12;
 
         public static string SerializeJSON(Histogram incomingHistogram)
         {
@@ -60,23 +63,112 @@ namespace DataPrepper.GenerationRelated
             return JsonConvert.DeserializeObject<Histogram>(incomingJson);
         }
 
-        //public static Histogram ConvertToNormalHistogram(
-        //    Bitmap incomingBitmap,
-        //    string nameOfBitmap,
-        //    int colorDivisibilityPerColor)
-        //{
-        //    ColorFilter filterType = ColorFilter.Normal;
-
-        //    //Generate Color array
-            
-        //}
-
-        public static Histogram ConvertToMonochromeHistogram(
+        public static void ConvertAndSaveAllHistograms(
             Bitmap incomingBitmap,
             string nameOfBitmap,
-            int colorGroupsPercentiles)
+            int groupDivisibilityNumber = defaultPercentileGroup)
         {
-            ColorFilter filterType = ColorFilter.Monochrome;
+            var values = Enum.GetValues(typeof(ValueMeasured)).Cast<ValueMeasured>();
+            foreach(var value in values)
+            {
+                ConvertAndSaveHistogram(incomingBitmap, nameOfBitmap, value, groupDivisibilityNumber);
+            }
+        }
+
+        public static void ConvertAndSaveHistogram(
+            Bitmap incomingBitmap,
+            string nameOfBitmap,
+            ValueMeasured valueType,
+            int groupDivisibilityNumber = defaultPercentileGroup)
+        {
+
+            if (valueType == ValueMeasured.Color)
+            {
+                Histogram newHistogram =
+                    ConvertToNormalHistogram(incomingBitmap, nameOfBitmap, groupDivisibilityNumber);
+
+                HistogramFileHandler.SaveHistogramJSON(
+                    SerializeJSON(newHistogram),
+                    DataConfigHandler.AlteredDataConfigContent.TrainingHistogramsColorfulPath);
+            }
+
+            if (valueType == ValueMeasured.Brightness)
+            {
+                Histogram newHistogram =
+                    ConvertToBrightnessHistogram(incomingBitmap, nameOfBitmap, groupDivisibilityNumber);
+
+                HistogramFileHandler.SaveHistogramJSON(
+                    SerializeJSON(newHistogram),
+                    DataConfigHandler.AlteredDataConfigContent.TrainingHistogramsMonochromePath);
+            }
+        }
+
+        public static Histogram ConvertToNormalHistogram(
+            Bitmap incomingBitmap,
+            string nameOfBitmap,
+            int groupDivisibilityPerColor = defaultPercentileGroup)
+        {
+            ValueMeasured filterType = ValueMeasured.Color ;
+            
+            //Generate Color array
+            int[] redArray = new int[groupDivisibilityPerColor];
+            int[] greenArray = new int[groupDivisibilityPerColor];
+            int[] blueArray = new int[groupDivisibilityPerColor];
+
+            for (int h = 0; h < incomingBitmap.Height; h++)
+            {
+                for(int w = 0; w < incomingBitmap.Width; w++)
+                {
+                    var pixel = incomingBitmap.GetPixel(w, h);
+                    
+                    int redIndex = DecideWhichIndex(groupDivisibilityPerColor, pixel.R, 256);
+                    redArray[redIndex]++;
+
+                    int greenIndex = DecideWhichIndex(groupDivisibilityPerColor, pixel.G, 256);
+                    greenArray[greenIndex]++;
+
+                    int blueIndex = DecideWhichIndex(groupDivisibilityPerColor, pixel.B, 256);
+                    blueArray[blueIndex]++;
+                }
+            }
+            
+
+            //Set arrays to percentages
+            int redSum = redArray.Sum();
+            double[] redPercentileArray = redArray.Select(n => ((double)n / (double)redSum)).ToArray();
+
+            int greenSum = greenArray.Sum();
+            double[] greenPercentileArray = greenArray.Select(n => ((double)n / (double)redSum)).ToArray();
+
+            int blueSum = blueArray.Sum();
+            double[] bluePercentileArray = blueArray.Select(n => ((double)n / (double)redSum)).ToArray();
+
+            //Set to one array [r, g, b]
+            List<double> combinationList = new List<double>();
+
+            for(int i = 0; i < redPercentileArray.Length; i++)
+            {
+                combinationList.Add(redPercentileArray[i]);
+            }
+            for(int i = 0; i < greenPercentileArray.Length; i++)
+            {
+                combinationList.Add(greenPercentileArray[i]);
+            }
+            for(int i = 0; i < bluePercentileArray.Length; i++)
+            {
+                combinationList.Add(bluePercentileArray[i]);
+            }
+
+            Histogram newHistogram = new Histogram(nameOfBitmap, ValueMeasured.Color, combinationList.ToArray());
+            return newHistogram;
+        }
+
+        public static Histogram ConvertToBrightnessHistogram(
+            Bitmap incomingBitmap,
+            string nameOfBitmap,
+            int colorGroupsPercentiles = defaultPercentileGroup)
+        {
+            ValueMeasured filterType = ValueMeasured.Brightness;
 
             float minValue = 0;
             float maxValue = 1;
@@ -102,7 +194,7 @@ namespace DataPrepper.GenerationRelated
                 percentagesArray[i] = brightnessArrayPercentiles[i] / sum;
             }
 
-            Histogram result = new Histogram(nameOfBitmap, ColorFilter.Monochrome, percentagesArray);
+            Histogram result = new Histogram(nameOfBitmap, ValueMeasured.Brightness, percentagesArray);
             return result;
         }
 

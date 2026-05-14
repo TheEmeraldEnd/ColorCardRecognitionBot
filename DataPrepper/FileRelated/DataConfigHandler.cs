@@ -143,10 +143,20 @@ namespace DataPrepper.FileRelated
 
         public static void DeleteDefaultDirectoriesAndFile()
         {
-            FileHandler.DeleteDirectory(DataConfigContent.DefaultDataConfigContent.RawTrainingImagesPath);
-            FileHandler.DeleteDirectory(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsColorfulPath);
-            FileHandler.DeleteDirectory(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsMonochromePath);
+            DeleteData();
+            DeleteConfigFile();
+        }
 
+        public static void DeleteData()
+        {
+            
+            FileHandler.DeleteDirectoryAndFilesInside(DataConfigContent.DefaultDataConfigContent.RawTrainingImagesPath);
+            FileHandler.DeleteDirectoryAndFilesInside(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsColorfulPath);
+            FileHandler.DeleteDirectoryAndFilesInside(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsMonochromePath);
+        }
+
+        public static void DeleteConfigFile()
+        {
             FileHandler.DeleteFile(DataConfigInfo.NameAndPath);
         }
     }

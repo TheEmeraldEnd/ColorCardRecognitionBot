@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using DataPrepper.Console_Related;
 
 namespace DataPrepper
 {
@@ -13,23 +14,11 @@ namespace DataPrepper
     {
         static void Main(string[] args)
         {
-            DataConfigHandler.DeserializeThenGenerate();
-            DataConfigHandler.SetToDefault();
+            Initializer.Initialize();
 
-            BitmapSubSection newBitmapSubsection = 
-                TemplateRandomizer.GenerateRandomBitmapSubsectionFromTemplate(FileGrabbers.GetImageTemplatePathsAndNames());
+            ConsoleCommands.ActivateConsoleMode();
 
-            Console.WriteLine($"Image Name = {newBitmapSubsection.BitmapName}");
 
-            var histogram = 
-                HistogramConverter.ConvertToMonochromeHistogram(
-                    newBitmapSubsection.BitmapSection,
-                    newBitmapSubsection.BitmapName,
-                    12);
-
-            HistogramFileHandler.SaveHistogramJSON(
-                HistogramConverter.SerializeJSON(histogram),
-                DataConfigHandler.AlteredDataConfigContent.TrainingHistogramsMonochromePath);
 
             //ImageFileHandler.WritePNGImage(
             //    newBitmapSubsection.BitmapSection, 
