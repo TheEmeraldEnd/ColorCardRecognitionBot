@@ -7,6 +7,10 @@
       "RelativeMoniker": "D:0:0:{2795422F-22EA-4D32-84A2-D99D8C6B1524}|DataPrepper.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{2795422F-22EA-4D32-84A2-D99D8C6B1524}|DataPrepper.csproj|c:\\users\\sage\\documents\\github\\colorcardrecognitionbot\\dataprepper\\filerelated\\histogramfilehandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2795422F-22EA-4D32-84A2-D99D8C6B1524}|DataPrepper.csproj|solutionrelative:filerelated\\histogramfilehandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{2795422F-22EA-4D32-84A2-D99D8C6B1524}|DataPrepper.csproj|c:\\users\\sage\\documents\\github\\colorcardrecognitionbot\\dataprepper\\generationrelated\\histogramconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2795422F-22EA-4D32-84A2-D99D8C6B1524}|DataPrepper.csproj|solutionrelative:generationrelated\\histogramconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -18,11 +22,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "HistogramFileHandler.cs",
+              "DocumentMoniker": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\FileRelated\\HistogramFileHandler.cs",
+              "RelativeDocumentMoniker": "FileRelated\\HistogramFileHandler.cs",
+              "ToolTip": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\FileRelated\\HistogramFileHandler.cs",
+              "RelativeToolTip": "FileRelated\\HistogramFileHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-14T13:28:04.825Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "HistogramConverter.cs",
               "DocumentMoniker": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\GenerationRelated\\HistogramConverter.cs",
               "RelativeDocumentMoniker": "GenerationRelated\\HistogramConverter.cs",
@@ -45,7 +62,7 @@
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAB8AAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAxwB8AAABdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-12T20:02:05.052Z",
               "EditorCaption": ""
