@@ -1,0 +1,15 @@
+{
+  "name": "card_ai",
+  "version": "1.0.0",
+  "description": "Selecting card by AI with colors",
+  "main": "app.js",
+  "scripts": {
+    "test": "app.js"
+  },
+  "keywords": [
+    "AI"
+  ],
+  "author": "Sage Derby",
+  "license": "ISC",
+  "type": "module"
+}
