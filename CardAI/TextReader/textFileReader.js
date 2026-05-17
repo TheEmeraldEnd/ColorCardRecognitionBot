@@ -1,7 +1,10 @@
-const fs = require('node:fs');
+import * as fs from 'fs';
 
 export default class FileReader{
-    static async ReadFromFile(incomingPathString = ""){
+    constructor(){
+
+    }
+    static ReadFromFile(incomingPathString = ""){
         let content = fs.readFile(incomingPathString)
         return content;
     }
