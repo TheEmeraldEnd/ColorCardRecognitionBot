@@ -1,5 +1,4 @@
-import { ReadFile } from './FileRelated/FileHandler.js';
+import * as FileHandler from './FileRelated/fileHandler.js';
+import * as HistogramHandler from './FileRelated/histogramHandler.js'
+import * as OptionsHandler from './FileRelated/optionHandler.js'
 
-console.log("Things")
-let content = await ReadFile('../DataRelated/Data/Data_Training/Data_Histogram_Monochrome/1627594724.txt');
-console.log(content);

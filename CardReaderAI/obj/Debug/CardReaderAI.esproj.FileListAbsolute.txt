@@ -1,1 +1,0 @@
-C:\Users\Sage\Documents\GitHub\ColorCardRecognitionBot\CardReaderAI\obj\Debug\CardReaderAI.esproj.CoreCompileInputs.cache
