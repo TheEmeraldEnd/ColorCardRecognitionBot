@@ -22,6 +22,18 @@ export class ColorfulClass{
         return histogram;
     }
 
+    static GetAllHistograms(){
+        let resultPaths = ColorfulClass.GetHistogramNamesAndRelativePaths();
+        let resultHistograms = [];
+
+        for(let i = 0; i < resultPaths.length; i++){
+            resultHistograms.push(resultPaths[i]);
+        }
+
+        return resultHistograms;
+    }
+
+
     static GetHistogramContent(incomingHistogramName = ""){
         let testFilePath = incomingHistogramName.replace('.txt');
         testFilePath += '.txt';
@@ -73,6 +85,18 @@ export class MonochromeClass{
         return histogram;
     }
 
+    static GetAllHistograms(){
+        let resultNames = MonochromeClass.GetHistogramNamesAndExtensions();
+        let resultHistograms = [];
+
+        for(let i = 0; i < resultNames.length; i++){
+            let tempHistogram = MonochromeClass.GetHistogram(resultNames[i])
+            resultHistograms.push(tempHistogram);
+        }
+
+        return resultHistograms;
+    }
+
     static GetHistogramContent(incomingHistogramName = ""){
         let testFilePath = incomingHistogramName.replace('.txt', '');
         testFilePath += '.txt';
@@ -89,10 +113,10 @@ export class MonochromeClass{
     }
 
     static GetHistogramNamesAndRelativePaths(){
-        let histogramNames =  GetMonochromeHistogramNamesAndExtensions();
+        let histogramNames =  MonochromeClass.GetHistogramNamesAndExtensions();
 
         for(let i = 0; i < histogramNames.length; i++){
-        histogramNames[i] = `${this.monochromeHistogramDirPath}/${histogramNames[i]}`
+            histogramNames[i] = `${this.monochromeHistogramDirPath}/${histogramNames[i]}`
         }
 
         return histogramNames;

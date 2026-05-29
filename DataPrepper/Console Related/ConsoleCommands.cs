@@ -2,9 +2,11 @@
 using DataPrepper.GenerationRelated;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -128,6 +130,12 @@ namespace DataPrepper.Console_Related
             {
                 Help();
             }
+            else if (incomingCommand == nameof(GenerateTestHistograms).ToUpper())
+            {
+                GoodComputerTalk("Generating");
+                GenerateTestHistograms();
+                GoodComputerTalk("Generation Completed");
+            }
             else
             {
                 if (!_exitCommands.Contains(incomingCommand.ToUpper()))
@@ -158,6 +166,12 @@ namespace DataPrepper.Console_Related
                 newBitmapSubsection.BitmapName);
         }
 
+        //TODO: Get this working
+        public static void GenerateTestHistograms()
+        {
+            FileGrabbers.GetImageTestPathsAndNames();
+        }
+
         public static void RefreshData()
         {
             DataConfigHandler.DeleteData();
@@ -170,6 +184,7 @@ namespace DataPrepper.Console_Related
             GoodComputerTalk(nameof(Generate));
             GoodComputerTalk(nameof(GenerateExample));
             GoodComputerTalk(nameof(RefreshData));
+            GoodComputerTalk(nameof(GenerateTestHistograms));
             GoodComputerTalk(nameof(Help));
             GoodComputerTalk("");
 
@@ -200,5 +215,7 @@ namespace DataPrepper.Console_Related
             Console.WriteLine(whatComputerIsSaying);
             Console.ResetColor();
         }
+
+
     }
 }

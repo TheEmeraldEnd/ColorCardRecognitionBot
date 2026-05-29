@@ -19,5 +19,19 @@ namespace DataPrepper.FileRelated
             string[] namesAndPaths = GetImageTemplateNames().Select(s => $"{directoryPath}/{s}").ToArray();
             return namesAndPaths;
         }
+
+        public static string[] GetImageTestNames()
+        {
+            return FileHandler.GetCurrentFiles(
+                DataConfigHandler.AlteredDataConfigContent.TestsPath)
+                .Select(s => s.Replace(".png", "")).ToArray();
+        }
+
+        public static string[] GetImageTestPathsAndNames()
+        {
+            string directoryPath = DataConfigHandler.AlteredDataConfigContent.TestsPath;
+            string[] namesAndPaths = GetImageTemplateNames().Select(s => $"{directoryPath}/{s}").ToArray();
+            return namesAndPaths;
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using DataPrepper.FileRelated;
@@ -61,6 +62,45 @@ namespace DataPrepper.GenerationRelated
         public static Histogram DeserializeJSON(string incomingJson)
         {
             return JsonConvert.DeserializeObject<Histogram>(incomingJson);
+        }
+
+        public static void ConvertAndSaveAllTestHistogram(
+            Bitmap incomingBitmap,
+            string nameOfBitmap,
+            int groupDivisibilityNumber = defaultPercentileGroup)
+        {
+            var values = Enum.GetValues(typeof(ValueMeasured)).Cast<ValueMeasured>();
+            foreach (var value in values) {
+                ConvertAndSaveTestHistogram(incomingBitmap, nameOfBitmap, value, groupDivisibilityNumber);
+            }
+            
+        }
+
+        public static void ConvertAndSaveTestHistogram(
+            Bitmap incomingBitmap,
+            string nameOfBitmap,
+            ValueMeasured valueType,
+            int groupDivisibilityNumber = defaultPercentileGroup)
+        {
+
+            if (valueType == ValueMeasured.Color)
+            {
+                Histogram newHistogram =
+                    ConvertToNormalHistogram(incomingBitmap, nameOfBitmap, groupDivisibilityNumber);
+                HistogramFileHandler.SaveHistogramJSON(
+                    SerializeJSON(newHistogram),
+                    DataConfigHandler.AlteredDataConfigContent.TestingHistogramsColorfulPath);
+            }
+
+            if (valueType == ValueMeasured.Brightness)
+            {
+                Histogram newHistogram =
+                    ConvertToBrightnessHistogram(incomingBitmap, nameOfBitmap, groupDivisibilityNumber);
+
+                HistogramFileHandler.SaveHistogramJSON(
+                    SerializeJSON(newHistogram),
+                    DataConfigHandler.AlteredDataConfigContent.TestingHistogramsMonochromePath);
+            }
         }
 
         public static void ConvertAndSaveAllHistograms(

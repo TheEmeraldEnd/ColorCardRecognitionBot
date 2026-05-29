@@ -46,11 +46,16 @@ namespace DataPrepper.FileRelated
             public string RawTrainingImagesPath { get; set; }
             public string TrainingHistogramsColorfulPath { get; set; }
             public string TrainingHistogramsMonochromePath { get; set; }
+
             public string OptionsPath { get; set; }
             public string TestsPath { get; set; }
 
+            public string TestingHistogramsColorfulPath { get; set; }
+
+            public string TestingHistogramsMonochromePath { get; set; }
+
             //private static DataConfigContent _defaultDataConfigContent =
-                
+
             public static DataConfigContent DefaultDataConfigContent
             {
                 get
@@ -61,6 +66,8 @@ namespace DataPrepper.FileRelated
                         RawTrainingImagesPath = "../../../DataRelated/Data/Data_Training/Data_Raw_Training",
                         TrainingHistogramsColorfulPath = "../../../DataRelated/Data/Data_Training/Data_Histogram_Color",
                         TrainingHistogramsMonochromePath = "../../../DataRelated/Data/Data_Training/Data_Histogram_Monochrome",
+                        TestingHistogramsColorfulPath = "../../../DataRelated/Data/Data_Testing/Data_Histogram_Color",
+                        TestingHistogramsMonochromePath = "../../../DataRelated/Data/Data_Testing/Data_Histogram_Monochrome",
                         OptionsPath = "../../DataDefaults/Data_Options",
                         TestsPath = "../../DataDefaults/Data_Test"
                     };
@@ -75,7 +82,9 @@ namespace DataPrepper.FileRelated
                     TrainingHistogramsColorfulPath,
                     TrainingHistogramsMonochromePath,
                     OptionsPath,
-                    TestsPath
+                    TestsPath,
+                    TestingHistogramsColorfulPath,
+                    TestingHistogramsMonochromePath
                 };
 
 
