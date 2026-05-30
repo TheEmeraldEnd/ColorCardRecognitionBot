@@ -169,7 +169,16 @@ namespace DataPrepper.Console_Related
         //TODO: Get this working
         public static void GenerateTestHistograms()
         {
-            FileGrabbers.GetImageTestPathsAndNames();
+            string[] paths = FileGrabbers.GetImageTestPathsAndNames();
+            string[] names = FileGrabbers.GetImageTestNames();
+
+            for(int i = 0; i < paths.Length; i++)
+            {
+                Bitmap tempBitmap = new Bitmap(paths[i]);
+                string name = names[i];
+
+                HistogramConverter.ConvertAndSaveAllTestHistogram(tempBitmap, name);
+            }
         }
 
         public static void RefreshData()

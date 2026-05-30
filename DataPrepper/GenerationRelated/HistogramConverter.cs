@@ -94,9 +94,10 @@ namespace DataPrepper.GenerationRelated
 
             if (valueType == ValueMeasured.Brightness)
             {
+                
                 Histogram newHistogram =
                     ConvertToBrightnessHistogram(incomingBitmap, nameOfBitmap, groupDivisibilityNumber);
-
+                
                 HistogramFileHandler.SaveHistogramJSON(
                     SerializeJSON(newHistogram),
                     DataConfigHandler.AlteredDataConfigContent.TestingHistogramsMonochromePath);
@@ -121,7 +122,7 @@ namespace DataPrepper.GenerationRelated
             ValueMeasured valueType,
             int groupDivisibilityNumber = defaultPercentileGroup)
         {
-
+            
             if (valueType == ValueMeasured.Color)
             {
                 Histogram newHistogram =
@@ -131,12 +132,13 @@ namespace DataPrepper.GenerationRelated
                     SerializeJSON(newHistogram),
                     DataConfigHandler.AlteredDataConfigContent.TrainingHistogramsColorfulPath);
             }
-
+            
             if (valueType == ValueMeasured.Brightness)
             {
+                
                 Histogram newHistogram =
                     ConvertToBrightnessHistogram(incomingBitmap, nameOfBitmap, groupDivisibilityNumber);
-
+                
                 HistogramFileHandler.SaveHistogramJSON(
                     SerializeJSON(newHistogram),
                     DataConfigHandler.AlteredDataConfigContent.TrainingHistogramsMonochromePath);
@@ -208,24 +210,29 @@ namespace DataPrepper.GenerationRelated
             string nameOfBitmap,
             int colorGroupsPercentiles = defaultPercentileGroup)
         {
+            
             ValueMeasured filterType = ValueMeasured.Brightness;
-
+            
             float minValue = 0;
             float maxValue = 1;
-
+            
             //Generate Color Array 
             int[] brightnessArrayPercentiles = new int[colorGroupsPercentiles];
-
+            
             for(int h = 0; h < incomingBitmap.Height; h++)
             {
                 for(int w = 0; w < incomingBitmap.Width; w++)
                 {
                     float pixelValue = incomingBitmap.GetPixel(w, h).GetBrightness();
                     int index = DecideWhichIndex(colorGroupsPercentiles, pixelValue, maxValue, minValue);
+                    if (index == colorGroupsPercentiles)
+                    {
+                        index -= 1;
+                    }
                     brightnessArrayPercentiles[index]++;
                 }
             }
-
+            
             //Convert to percentages
             double[] percentagesArray = new double[brightnessArrayPercentiles.Length];
             double sum = brightnessArrayPercentiles.Sum();

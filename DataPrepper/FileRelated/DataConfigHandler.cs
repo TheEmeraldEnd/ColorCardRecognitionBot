@@ -162,6 +162,8 @@ namespace DataPrepper.FileRelated
             FileHandler.DeleteDirectoryAndFilesInside(DataConfigContent.DefaultDataConfigContent.RawTrainingImagesPath);
             FileHandler.DeleteDirectoryAndFilesInside(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsColorfulPath);
             FileHandler.DeleteDirectoryAndFilesInside(DataConfigContent.DefaultDataConfigContent.TrainingHistogramsMonochromePath);
+            FileHandler.DeleteDirectoryAndFilesInside(DataConfigContent.DefaultDataConfigContent.TestingHistogramsColorfulPath);
+            FileHandler.DeleteDirectoryAndFilesInside(DataConfigContent.DefaultDataConfigContent.TestingHistogramsMonochromePath);
         }
 
         public static void DeleteConfigFile()
