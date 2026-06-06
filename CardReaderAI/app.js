@@ -6,6 +6,11 @@ import * as MLHandler from './MachineLearningRelated/MLHandler.js'
 import * as TrainingDataHandler from './MachineLearningRelated/TrainingDataHandler.js';
 import * as tf from '@tensorflow/tfjs'
 
+import * as DataHolder from "./DataRelated/DataHolder.js";
+import * as DataTranslator from "./DataRelated/DataTranslator.js";
+import * as DataComparer from "./DataRelated/DataComparer.js";
+
+import * as MathExtension from "./MathRelated/MathFunctions.js"
 //To Test Of model building
 //Source: https://curiousily.com/posts/build-a-simple-neural-network-with-tensorflow-js-in-javascript/
 
@@ -68,10 +73,11 @@ import * as tf from '@tensorflow/tfjs'
 //#endregion
 
 let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
-let formattedTrainingData = TrainingDataHandler.FormatTrainingData(trainingHistograms, OptionsHandler.GetOptionNames());
+let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(trainingHistograms, OptionsHandler.GetOptionNames());
 
-let numberOfInputNodes = formattedTrainingData.GetNumberOfInputs();
-let numberOfOutputNodes = formattedTrainingData.GetPossibleOpionsLength();
+let numberOfInputNodes = formattedTrainingData.GetLengthsOfRawColorArray();
+console.log(numberOfInputNodes)
+let numberOfOutputNodes = formattedTrainingData.GetPossibleOptionsLength();
 
 let totalHiddenNodes = MLHandler.HiddenNodeRecommender.GetHiddenNodesBySimpleMethod(numberOfInputNodes, numberOfOutputNodes);
 let hiddenLayerAmmount = 2;
@@ -93,13 +99,23 @@ newModel.CompileMachine('meanSquaredError', 'sgd');
 //TODO: Find out why fitting doesn't work
 await newModel.Fit(
   formattedTrainingData.GetRawColorDataAsTensor(),
-  formattedTrainingData.GetLabelsAsNumberedTensor(),
-  2000,
+  DataTranslator.BinaryTranslator.LabelsToIndexesTensor(formattedTrainingData.GetLabelsAsArray(), formattedTrainingData.GetOptionNames()),
+  20000,
   10
 );
 newModel.GetSummary();
 
+let rawTensorResult = newModel.predict(formattedTrainingData.GetRawColorDataAsTensor());
+rawTensorResult.print();
+formattedTrainingData.GetLabelsAsTensor().print();
 
-let result = newModel.predict(formattedTrainingData.GetRawColorDataAsTensor());
-result.print();
-let predictionResult = newModel.TranslateNumberArrayIntoPredictionString(result.dataSync(), OptionsHandler.GetOptionNames());
+let rawArrayResult = rawTensorResult.dataSync();
+
+let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), formattedTrainingData.GetOptionNames());
+
+DataComparer.CompareLabels(result, formattedTrainingData.GetLabelsAsArray());
+
+
+// let monochromeHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
+// let dataHolder = DataHolder.DataHolder.InitializeNewDataHolder(monochromeHistograms, OptionsHandler.GetOptionNames());
+// dataHolder.print();

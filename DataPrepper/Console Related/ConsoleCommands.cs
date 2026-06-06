@@ -113,6 +113,9 @@ namespace DataPrepper.Console_Related
                     NeutralComputerTalk("Ok then...");
                     RefreshData();
                     GoodComputerTalk("Refresh done. Old data deleted. Data Directory freshed.");
+                    GenerateTestHistograms();
+                    GoodComputerTalk("Test histograms regenerated");
+                    
                 }
                 else
                 {
@@ -129,12 +132,6 @@ namespace DataPrepper.Console_Related
             else if (incomingCommand == nameof(Help).ToUpper() || incomingCommand == "?")
             {
                 Help();
-            }
-            else if (incomingCommand == nameof(GenerateTestHistograms).ToUpper())
-            {
-                GoodComputerTalk("Generating");
-                GenerateTestHistograms();
-                GoodComputerTalk("Generation Completed");
             }
             else
             {
@@ -166,7 +163,6 @@ namespace DataPrepper.Console_Related
                 newBitmapSubsection.BitmapName);
         }
 
-        //TODO: Get this working
         public static void GenerateTestHistograms()
         {
             string[] paths = FileGrabbers.GetImageTestPathsAndNames();
@@ -193,7 +189,6 @@ namespace DataPrepper.Console_Related
             GoodComputerTalk(nameof(Generate));
             GoodComputerTalk(nameof(GenerateExample));
             GoodComputerTalk(nameof(RefreshData));
-            GoodComputerTalk(nameof(GenerateTestHistograms));
             GoodComputerTalk(nameof(Help));
             GoodComputerTalk("");
 
