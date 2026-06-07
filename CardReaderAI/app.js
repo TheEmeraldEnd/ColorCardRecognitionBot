@@ -3,7 +3,6 @@ import * as HistogramHandler from './FileRelated/histogramHandler.js'
 import * as OptionsHandler from './FileRelated/optionHandler.js'
 
 import * as MLHandler from './MachineLearningRelated/MLHandler.js'
-import * as TrainingDataHandler from './MachineLearningRelated/TrainingDataHandler.js';
 import * as tf from '@tensorflow/tfjs'
 
 import * as DataHolder from "./DataRelated/DataHolder.js";
@@ -76,15 +75,13 @@ let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
 let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(trainingHistograms, OptionsHandler.GetOptionNames());
 
 let numberOfInputNodes = formattedTrainingData.GetLengthsOfRawColorArray();
-console.log(numberOfInputNodes)
 let numberOfOutputNodes = formattedTrainingData.GetPossibleOptionsLength();
 
 let totalHiddenNodes = MLHandler.HiddenNodeRecommender.GetHiddenNodesBySimpleMethod(numberOfInputNodes, numberOfOutputNodes);
 let hiddenLayerAmmount = 2;
 let hiddenNodesPerLayer = MLHandler.HiddenNodeRecommender.SetNumberOfHiddenNodesByLayer(totalHiddenNodes, hiddenLayerAmmount);
 
-const newModel = new MLHandler.ModelClass();
-newModel.InitializeSequentialModel();
+const newModel = new MLHandler.ModelClass("SomeName");
 
 newModel.ConfigureModel(
   numberOfInputNodes,
@@ -96,26 +93,43 @@ newModel.ConfigureModel(
 
 newModel.CompileMachine('meanSquaredError', 'sgd');
 
-//TODO: Find out why fitting doesn't work
 await newModel.Fit(
   formattedTrainingData.GetRawColorDataAsTensor(),
   DataTranslator.BinaryTranslator.LabelsToIndexesTensor(formattedTrainingData.GetLabelsAsArray(), formattedTrainingData.GetOptionNames()),
-  20000,
+  10,
   10
 );
 newModel.GetSummary();
 
-let rawTensorResult = newModel.predict(formattedTrainingData.GetRawColorDataAsTensor());
+//Get formatted final result
+let formattedFinalData = DataHolder.DataHolder.InitializeNewDataHolder(HistogramHandler.MonochromeTestingClass.GetAllHistograms(), OptionsHandler.GetOptionNames());
+
+let rawTensorResult = newModel.predict(formattedFinalData.GetRawColorDataAsTensor());
 rawTensorResult.print();
-formattedTrainingData.GetLabelsAsTensor().print();
+formattedFinalData.GetLabelsAsTensor().print();
 
 let rawArrayResult = rawTensorResult.dataSync();
 
-let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), formattedTrainingData.GetOptionNames());
+let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), formattedFinalData.GetOptionNames());
 
-DataComparer.CompareLabels(result, formattedTrainingData.GetLabelsAsArray());
+DataComparer.CompareLabels(result, formattedFinalData.GetLabelsAsArray());
+
+newModel.SaveModel();
+
+//newModel.LoadModel("SomeName");
+
+//newModel.LogPredict(result, formattedFinalData.GetLabelsAsArray(), OptionsHandler.GetOptionNames(), rawTensorResult);
+
+//#region Test on Training Data
+// let rawTensorResult = newModel.predict(formattedTrainingData.GetRawColorDataAsTensor());
+// rawTensorResult.print();
+// formattedTrainingData.GetLabelsAsTensor().print();
+
+// let rawArrayResult = rawTensorResult.dataSync();
+
+// let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), formattedTrainingData.GetOptionNames());
+
+// DataComparer.CompareLabels(result, formattedTrainingData.GetLabelsAsArray());
 
 
-// let monochromeHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
-// let dataHolder = DataHolder.DataHolder.InitializeNewDataHolder(monochromeHistograms, OptionsHandler.GetOptionNames());
-// dataHolder.print();
+//#endregion

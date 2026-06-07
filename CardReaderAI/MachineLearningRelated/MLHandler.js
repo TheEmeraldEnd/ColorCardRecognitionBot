@@ -1,14 +1,18 @@
 import * as tf from '@tensorflow/tfjs';
+import * as DataComparer from "../DataRelated/DataComparer.js";
+import * as LogHandler from "../FileRelated/LogHandler.js";
+import * as ModelLoaderHandler from "../FileRelated/ModelLoaderHandler.js";
 
 export class ModelClass{
 
-    constructor(){
-        this.model = tf.sequential();
+    constructor(incomingName = ""){
+        this.model = tf.sequential({name: incomingName});
+        console.log(`Initialization for ${this.GetName()} is complete`)
     }
 
-    InitializeSequentialModel(){
-        this.model = tf.sequential();
-        console.log(`Initialization for ${this.model.name} is complete`)
+    InitializeSequentialModel(incomingName){
+        this.model = tf.sequential({name:incomingName});
+        
     }
 
     AddLayerAfterInputLayer(inputLayerNodes = 1, nextLayerNodes = 1, activationFunction = 'tanh'){
@@ -70,10 +74,11 @@ export class ModelClass{
             this.AddLayer(outputNodeAmounts, outputLayerActivationFunction);
         }
 
-        console.log(`Configuration for ${this.model.name} complete`);
+        console.log(`Configuration for ${this.GetName()} complete`);
     }
 
     GetSummary(){
+        console.log(`Name: ${this.GetName()}`);
         this.model.summary();
     }
 
@@ -83,7 +88,7 @@ export class ModelClass{
             loss: lossFunction
         });
 
-        console.log(`Compilation for ${this.model.name} is complete`)
+        console.log(`Compilation for ${this.GetName()} is complete`)
     }
 
     async Fit(inputData, incomingOutputExpected, totalEpochAmount = 100, epochLogIteration = 10 ){
@@ -102,15 +107,47 @@ export class ModelClass{
             }
         )
 
-        console.log(`Fitting for ${this.model.name} is complete`);
+        console.log(`Fitting for ${this.GetName()} is complete`);
     }
 
     predict(incomingData){
         let result = this.model.predict(incomingData);
-        console.log(`Preidction for ${this.model.name} is complete`)
+        console.log(`Preidction for ${this.GetName()} is complete`)
         return result;
     }
 
+    GetName(){
+        return this.model.name;
+    }
+
+    LogPredict(incomingPredictedLabels, actualLabels, possibleOptions, predictionTensor ){
+        let resultContent = DataComparer.CompareLabelsReturnString(incomingPredictedLabels, actualLabels);
+
+        resultContent += `\nRecorded ${new Date().toLocaleString()}`
+
+        resultContent += `\n\n\nPrediction tensor`;
+        resultContent += `\n\n${predictionTensor.toString()}`;
+
+        LogHandler.SaveAccuracyLog(this.GetName(), resultContent);
+    }
+
+    SaveModel(){ 
+        ModelLoaderHandler.SaveModel(this.GetName(), this.model.toJSON());
+    }
+
+    //TODO: Need to work on. Doesn't work
+    // async LoadModel(incomingModelName = ""){
+    //     if (!ModelLoaderHandler.IsModelSaved(incomingModelName)){
+    //         console.log(`Model ${incomingModelName} not saved. Now loading new model by that name...`);
+    //         this.model = this.InitializeSequentialModel(incomingModelName);
+    //         return;
+    //     }
+    //     let modelJSONstring = ModelLoaderHandler.GetJSONOfModel(incomingModelName)
+    //     this.model = tf.LayersModel.(modelJSONstring);
+
+    //     this.GetSummary()
+        
+    // }
 }
 
 export class HiddenNodeRecommender{

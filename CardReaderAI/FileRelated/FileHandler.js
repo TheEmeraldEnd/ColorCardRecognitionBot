@@ -4,6 +4,17 @@ export function Test(){
     console.log('fileHandler test successful');
 }
 
+//If file exists, overrite it
+export function WriteToFile(fileNamePathExtension = "", fileContent = ""){
+    try{
+        fs.writeFileSync(fileNamePathExtension, fileContent);
+        console.log(`Saved accuracy content to ${fileNamePathExtension}`)
+    }
+    catch(error){
+        console.error(error);
+    }
+}
+
 export function ReadFromFile(incomingPathString = ""){
     if (!IsFileOrDirectoryExist(incomingPathString)){
         console.log(`File ${incomingPathString} doesn't exist`);
