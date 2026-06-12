@@ -91,6 +91,7 @@ newModel.ConfigureModel(
   'sigmoid'
 );
 
+
 newModel.CompileMachine('meanSquaredError', 'sgd');
 
 await newModel.Fit(

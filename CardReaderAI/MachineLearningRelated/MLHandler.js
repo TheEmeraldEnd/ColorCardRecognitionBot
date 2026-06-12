@@ -7,6 +7,7 @@ export class ModelClass{
 
     constructor(incomingName = ""){
         this.model = tf.sequential({name: incomingName});
+        this.activationFunctions = []
         console.log(`Initialization for ${this.GetName()} is complete`)
     }
 
@@ -21,10 +22,12 @@ export class ModelClass{
             units: nextLayerNodes,
             activation: activationFunction,
         });
-
+        
         this.model.add(
             nextLayer
         );
+
+        this.activationFunctions.push(activationFunction);
     }
 
     AddLayer(nextLayerNodes = 1, activationFunction = ''){
@@ -45,6 +48,7 @@ export class ModelClass{
         }
 
         this.model.add(nextLayer);
+        this.activationFunctions.push(activationFunction);
     }
 
     ConfigureModel(
@@ -132,7 +136,17 @@ export class ModelClass{
     }
 
     SaveModel(){ 
-        ModelLoaderHandler.SaveModel(this.GetName(), this.model.toJSON());
+        let modelName = this.GetName();
+        let modelWeights = this.model.getWeights();
+        let activationfunctions = this.GetActivationFunctionNamesPerLayer();
+
+        ModelLoaderHandler.SaveModel(modelName, modelWeights, activationfunctions)
+
+        //ModelLoaderHandler.SaveModel(this.GetName(), this.model.toJSON());
+    }
+
+    GetActivationFunctionNamesPerLayer(){
+        return this.activationFunctions;
     }
 
     //TODO: Need to work on. Doesn't work
@@ -148,6 +162,10 @@ export class ModelClass{
     //     this.GetSummary()
         
     // }
+
+    LoadModel(incomingModelName = ""){
+
+    }
 }
 
 export class HiddenNodeRecommender{
