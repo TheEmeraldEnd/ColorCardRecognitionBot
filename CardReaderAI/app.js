@@ -115,7 +115,9 @@ let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arr
 
 DataComparer.CompareLabels(result, formattedFinalData.GetLabelsAsArray());
 
-newModel.SaveModel();
+await newModel.SaveModel();
+
+MLHandler.ModelClass.LoadModel('SomeName');
 
 //newModel.LoadModel("SomeName");
 

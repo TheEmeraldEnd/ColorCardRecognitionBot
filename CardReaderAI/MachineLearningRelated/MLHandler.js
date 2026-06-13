@@ -2,13 +2,14 @@ import * as tf from '@tensorflow/tfjs';
 import * as DataComparer from "../DataRelated/DataComparer.js";
 import * as LogHandler from "../FileRelated/LogHandler.js";
 import * as ModelLoaderHandler from "../FileRelated/ModelLoaderHandler.js";
+import { DataHolder as DataHolder } from '../DataRelated/DataHolder.js';
 
 export class ModelClass{
 
     constructor(incomingName = ""){
         this.model = tf.sequential({name: incomingName});
-        this.activationFunctions = []
-        console.log(`Initialization for ${this.GetName()} is complete`)
+        this.activationFunctions = [];
+        this.optimizer = "";
     }
 
     InitializeSequentialModel(incomingName){
@@ -58,7 +59,6 @@ export class ModelClass{
         hiddenLayerActivationFunction = 'tanh',
         outputLayerActivationFunction = 'sigmoid'){
         
-
         if (hiddenLayerNodes.length === 0){
             this.AddLayerAfterInputLayer(inputLayerNodes, outputNodeAmounts, outputLayerActivationFunction);
         }
@@ -91,6 +91,8 @@ export class ModelClass{
             optimizer: icomingOptimizer,
             loss: lossFunction
         });
+
+        this.optimizer = icomingOptimizer;
 
         console.log(`Compilation for ${this.GetName()} is complete`)
     }
@@ -135,37 +137,205 @@ export class ModelClass{
         LogHandler.SaveAccuracyLog(this.GetName(), resultContent);
     }
 
-    SaveModel(){ 
-        let modelName = this.GetName();
-        let modelWeights = this.model.getWeights();
-        let activationfunctions = this.GetActivationFunctionNamesPerLayer();
+    async SaveModel(){
 
-        ModelLoaderHandler.SaveModel(modelName, modelWeights, activationfunctions)
-
-        //ModelLoaderHandler.SaveModel(this.GetName(), this.model.toJSON());
-    }
-
-    GetActivationFunctionNamesPerLayer(){
-        return this.activationFunctions;
-    }
-
-    //TODO: Need to work on. Doesn't work
-    // async LoadModel(incomingModelName = ""){
-    //     if (!ModelLoaderHandler.IsModelSaved(incomingModelName)){
-    //         console.log(`Model ${incomingModelName} not saved. Now loading new model by that name...`);
-    //         this.model = this.InitializeSequentialModel(incomingModelName);
-    //         return;
-    //     }
-    //     let modelJSONstring = ModelLoaderHandler.GetJSONOfModel(incomingModelName)
-    //     this.model = tf.LayersModel.(modelJSONstring);
-
-    //     this.GetSummary()
         
-    // }
-
-    LoadModel(incomingModelName = ""){
-
+        ModelSaver.SaveModel(this.model, this.activationFunctions, this.optimizer);
     }
+
+
+    static LoadModel(incomingModelName = ""){
+        ModelLoader.LoadModel(incomingModelName);
+        
+    }   
+}
+
+class ModelDataHolder{
+    constructor(name, activationFunctions, weights, biases, inputNodesAmount, outputNodesAmount, lossFunction, optimizerFunction){
+        this.name = name;
+        this.activationFunctions = activationFunctions;
+        this.weights = weights;
+        this.biases = biases;
+        this.inputNodesAmount = inputNodesAmount;
+        this.outputNodesAmount = outputNodesAmount;
+        this.lossFunction = lossFunction;
+        this.optimizerFunction = optimizerFunction;
+    }
+
+}
+
+class ModelSaver{
+    
+
+    //The reason for repeditive names is to make future optimization for not requiring variables easier to replace
+    static SaveModel(incomingModel, activationFunctions = [], incomingOptimizer = ""){
+        const modelDataHolder = new ModelDataHolder(
+            this.#GetModelName(incomingModel),
+            this.#GetActivationFunctions(activationFunctions),
+            this.#GetWeightsAsArray(incomingModel),
+            this.#GetBiasAsArray(incomingModel),
+            this.#GetInputNodesAmount(incomingModel),
+            this.#GetOutputNodesAmount(incomingModel),
+            this.#GetLossFunction(incomingModel),
+            this.#GetOptimizerFunction(incomingOptimizer)
+        )
+
+        ModelLoaderHandler.SaveModel(this.#GetModelName(incomingModel), JSON.stringify(modelDataHolder))
+    }
+
+    static #GetModelName(incomingModel){
+        return incomingModel.name
+    }
+
+    static #GetActivationFunctions(activationFunctions = []){
+        return activationFunctions
+    }
+
+    static #GetWeightsAsArray(incomingModel){
+        let result = []
+        let layersAmount = incomingModel.layers.length;
+        for (let i = 0; i < layersAmount; i++) {
+            result.push(incomingModel.layers[i].getWeights()[0].dataSync());;
+        }
+        return result;
+    }
+
+    static #GetBiasAsArray(incomingModel){
+        let result = []
+        let layersAmount = incomingModel.layers.length;
+        for (let i = 0; i < layersAmount; i++) {
+            result.push(incomingModel.layers[i].getWeights()[1].dataSync());
+        }
+        return result;
+    }
+
+    static #GetInputNodesAmount(incomingModel){
+        let inpuytLayerWeightsLength = incomingModel.layers[0].getWeights()[0].dataSync().length;
+        let inputLayerBiasLength = incomingModel.layers[0].getWeights()[1].dataSync().length;
+        let result = inpuytLayerWeightsLength / inputLayerBiasLength;
+        return result;
+    }
+
+    static #GetOutputNodesAmount(incomingModel){
+        let lengthOfLayers = incomingModel.layers.length;
+        let result = incomingModel.layers[lengthOfLayers - 1].getWeights()[1].dataSync().length;
+        return result
+    }
+
+    static #GetLossFunction(incomingModel){
+        return incomingModel.loss;
+    }
+
+    static #GetOptimizerFunction(incomingOptimizer){
+        return incomingOptimizer;
+    }
+}
+
+class ModelLoader{
+    
+
+    //The reason for repeditive names is to make future optimization for not requiring variables easier to replace
+    static LoadModel(incomingModelName = ""){
+
+        let dataJSON = ModelLoaderHandler.GetModelData(incomingModelName);
+
+        const dataHolder = new ModelDataHolder(
+            this.#GetModelName(dataJSON),
+            this.#GetActivationFunctions(dataJSON),
+            this.#GetWeightsAsArray(dataJSON),
+            this.#GetBiasAsArray(dataJSON),
+            this.#GetInputNodesAmount(dataJSON),
+            this.#GetOutputNodesAmount(dataJSON),
+            this.#GetLossFunction(dataJSON),
+            this.#GetOptimizerFunction(dataJSON)
+        );
+
+        let hiddenLayersNodes = []
+
+        for(let i = 0; i < dataHolder.weights.length; i++){
+            let tempWeightsLength = dataHolder.weights[i].length;
+            let tempBiasLength = dataHolder.biases[i].length;
+            hiddenLayersNodes.push(tempWeightsLength / tempBiasLength);
+        }
+
+        let newModel = new ModelClass(dataHolder.name);
+        
+        newModel.ConfigureModel(
+            dataHolder.inputNodesAmount,
+            hiddenLayersNodes,
+            dataHolder.outputNodesAmount,
+            dataHolder.activationFunctions[0],
+            dataHolder.activationFunctions[dataHolder.activationFunctions.length - 1]
+        );
+        
+        //Make combine the weights
+        let totalWeights = [];
+
+        for(let i = 0; i < dataHolder.weights.length; i++){
+            totalWeights.push(dataHolder.weights[i]);
+            totalWeights.push(dataHolder.biases[i]);
+        }
+
+        let shape = []
+
+        for(let i = 0; i < totalWeights.length; i++){
+            shape.push(totalWeights[i].length)
+        }
+
+        //Figure out how to load weights into model
+
+         
+    }
+
+    //#region Properties
+    static #GetModelName(incomingJSON){
+        let result = JSON.parse(incomingJSON).name;
+        return result;
+    }
+
+    static #GetActivationFunctions(incomingJSON){
+        let result = JSON.parse(incomingJSON).activationFunctions;
+        return result;
+    }
+
+    static #GetWeightsAsArray(incomingJSON){
+        let result = [];
+        let data = JSON.parse(incomingJSON).weights;
+        for(let i = 0; i < data.length; i++){
+            result.push(Object.values(data[i]))
+        }
+        return result;
+    }
+
+    static #GetBiasAsArray(incomingJSON){
+        let result = [];
+        let data = JSON.parse(incomingJSON).biases;
+        for(let i = 0; i < data.length; i++){
+            result.push(Object.values(data[i]))
+        }
+        return result;
+    }
+
+    static #GetInputNodesAmount(incomingJSON){
+        let result = JSON.parse(incomingJSON).inputNodesAmount
+        return result;
+    }
+
+    static #GetOutputNodesAmount(incomingJSON){
+        let result = JSON.parse(incomingJSON).outputNodesAmount
+        return result;
+    }
+
+    static #GetLossFunction(incomingJSON){
+        let result = JSON.parse(incomingJSON).lossFunction;
+        return result;
+    }
+
+    static #GetOptimizerFunction(incomingJSON){
+        let result = JSON.parse(incomingJSON).optimizerFunction;
+        return result;
+    }
+    //#endregion
 }
 
 export class HiddenNodeRecommender{

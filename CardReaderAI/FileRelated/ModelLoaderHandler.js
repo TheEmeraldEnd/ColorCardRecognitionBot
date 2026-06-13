@@ -2,27 +2,24 @@ import * as FileHandler from "./FileHandler.js"
 
 const BOT_SAVE_PATH = "../BotRelated/SavedBots";
 
-// export function SaveModel(modelName = "", jsonContent = ""){
-//     FileHandler.WriteToFile(GetSaveFileName(modelName), jsonContent);
-// }
-
-export function SaveModel(incomingModelName = "", incomingWeights = [], incomingActivationFunctions = []){
-    let nameAndPath = `${BOT_SAVE_PATH}/${incomingModelName}.txt`;
-    let content = `${new SaveModelClass(incomingModelName, incomingWeights, incomingActivationFunctions).ToJSON()}`
-    FileHandler.WriteToFile(nameAndPath, content);
+export function SaveModel(modelName = "", jsonContent = ""){
+    FileHandler.WriteToFile(GetSaveFileName(modelName), jsonContent);
 }
 
-class SaveModelClass{
-    constructor(incomingModelName = "", incomingWeights = [], incomingActivationFunctions = []){
-        this.modelName = incomingModelName;
-        this.incomingWeights = incomingWeights;
-        this.activationFunctions = incomingActivationFunctions;
+export function IsBotSaved(incomingModelName = ""){
+    return FileHandler.IsFileOrDirectoryExist(GetSaveFileName(incomingModelName));
+}
+
+export function GetModelData(incomingModelName){
+    if (!IsBotSaved(incomingModelName)=== true){
+        return undefined;
     }
 
-    ToJSON(){
-        return JSON.stringify(this);
-    }
+    let contentJSON = FileHandler.ReadFromFile(GetSaveFileName(incomingModelName));
+
+    return contentJSON
 }
+
 
 function GetSaveFileName(modelName = ""){
     return `${BOT_SAVE_PATH}/${modelName}.txt`;

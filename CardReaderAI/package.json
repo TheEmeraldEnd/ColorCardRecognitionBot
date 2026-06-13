@@ -3,6 +3,9 @@
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",
     "modules": "^0.4.0",
-    "node": "^24.16.0"
+    "node": "^24.16.0",
+    "npm": "^11.17.0",
+    "python": "^0.0.4",
+    "tfjs-node-save": "^0.0.2"
   }
 }
