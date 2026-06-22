@@ -97,8 +97,8 @@ namespace DataPrepper.Console_Related
 
                 for(int i = 0; i < repeatAmount; i++)
                 {
-                    NeutralComputerTalk($"{i} out of {repeatAmount} done");
                     Generate();
+                    NeutralComputerTalk($"{i + 1} out of {repeatAmount} | {(((float)i + 1) / (float)repeatAmount):P2} done");
                 }
 
 

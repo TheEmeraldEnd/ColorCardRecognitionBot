@@ -10,7 +10,7 @@ export class DataHolder{
 
         this.labels = this.labels.map(s => s.trim());
     }
-
+0
     InitializeDataHolder(rawDataColorArray = [], incomingLabelsAsStrings = [], incomingPossibleOptions = []){
         this.rawDataColorArray = rawDataColorArray;
         this.labels = incomingLabelsAsStrings;

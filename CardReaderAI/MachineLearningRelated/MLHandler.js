@@ -97,7 +97,7 @@ export class ModelClass{
         console.log(`Compilation for ${this.GetName()} is complete`)
     }
 
-    async Fit(inputData, incomingOutputExpected, totalEpochAmount = 100, epochLogIteration = 10 ){
+    async Fit(inputData, incomingOutputExpected, totalEpochAmount = 100, epochLogIteration = 10, batchSizeValue = 32){
         await this.model.fit(
             inputData, 
             incomingOutputExpected,
@@ -110,6 +110,7 @@ export class ModelClass{
                         }
                     }
                 },
+                batchSize : batchSizeValue
             }
         )
 
@@ -144,10 +145,35 @@ export class ModelClass{
     }
 
 
-    static LoadModel(incomingModelName = ""){
-        ModelLoader.LoadModel(incomingModelName);
+    // static LoadModel(incomingModelName = ""){
+    //     ModelLoader.LoadModel(incomingModelName);
         
-    }   
+    // }   
+
+    async FitDataWithBatching(inputData, incomingOutputExpected, incomingPossibleOptions, totalEpochAmount = 100, epochLogIteration = 10, dataGroupAmount = 10){
+        let numberOfGroups = incomingOutputExpected.shape[0] / dataGroupAmount;
+        let remainder = Math.floor(incomingOutputExpected.shape[0] % dataGroupAmount);
+        let cutoffPoint = incomingOutputExpected.shape[0] - remainder;
+
+        //Prepare the data by shaving remainder
+        inputData.shape[0] -= remainder;        
+        incomingOutputExpected.shape[0] -= remainder;
+
+        let splitInputData = tf.split(inputData, numberOfGroups );
+        let splitIncomingOutputExpected = tf.split(incomingOutputExpected, numberOfGroups);
+        
+
+        for(let i = 0; i < numberOfGroups; i++){
+            await this.Fit(
+                splitInputData[i],
+                splitIncomingOutputExpected[i],
+                totalEpochAmount,
+                epochLogIteration);
+
+            console.log(`epoch set ${i} of ${numberOfGroups}`)
+        }
+        console.log(`Data batching training completed`)
+    }
 }
 
 class ModelDataHolder{

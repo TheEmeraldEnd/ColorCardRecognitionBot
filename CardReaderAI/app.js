@@ -94,15 +94,24 @@ newModel.ConfigureModel(
 
 newModel.CompileMachine('meanSquaredError', 'sgd');
 
-await newModel.Fit(
+// await newModel.Fit(
+//   formattedTrainingData.GetRawColorDataAsTensor(),
+//   DataTranslator.BinaryTranslator.LabelsToIndexesTensor(formattedTrainingData.GetLabelsAsArray(), formattedTrainingData.GetOptionNames()),
+//   100,
+//   10
+// );
+
+await newModel.FitDataWithBatching(
   formattedTrainingData.GetRawColorDataAsTensor(),
   DataTranslator.BinaryTranslator.LabelsToIndexesTensor(formattedTrainingData.GetLabelsAsArray(), formattedTrainingData.GetOptionNames()),
+  formattedTrainingData.GetOptionNames(),
+  20,
   10,
-  10
+  5
 );
 newModel.GetSummary();
 
-//Get formatted final result
+//#region Get formatted final result
 let formattedFinalData = DataHolder.DataHolder.InitializeNewDataHolder(HistogramHandler.MonochromeTestingClass.GetAllHistograms(), OptionsHandler.GetOptionNames());
 
 let rawTensorResult = newModel.predict(formattedFinalData.GetRawColorDataAsTensor());
@@ -114,10 +123,14 @@ let rawArrayResult = rawTensorResult.dataSync();
 let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), formattedFinalData.GetOptionNames());
 
 DataComparer.CompareLabels(result, formattedFinalData.GetLabelsAsArray());
+//#endregion
 
-await newModel.SaveModel();
+//#region Save area testing
+// await newModel.SaveModel();
 
-MLHandler.ModelClass.LoadModel('SomeName');
+// MLHandler.ModelClass.LoadModel('SomeName');
+//#endregion
+
 
 //newModel.LoadModel("SomeName");
 
