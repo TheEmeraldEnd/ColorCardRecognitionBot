@@ -125,10 +125,11 @@ let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arr
 DataComparer.CompareLabels(result, formattedFinalData.GetLabelsAsArray());
 //#endregion
 
+newModel.model.layers[0].getWeights()[0].print()
 //#region Save area testing
-// await newModel.SaveModel();
+await newModel.SaveModel();
 
-// MLHandler.ModelClass.LoadModel('SomeName');
+MLHandler.ModelClass.LoadModel('SomeName');
 //#endregion
 
 

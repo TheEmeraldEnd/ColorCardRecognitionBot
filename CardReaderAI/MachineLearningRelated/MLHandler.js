@@ -3,6 +3,7 @@ import * as DataComparer from "../DataRelated/DataComparer.js";
 import * as LogHandler from "../FileRelated/LogHandler.js";
 import * as ModelLoaderHandler from "../FileRelated/ModelLoaderHandler.js";
 import { DataHolder as DataHolder } from '../DataRelated/DataHolder.js';
+import * as MathFunctions from '../MathRelated/MathFunctions.js';
 
 export class ModelClass{
 
@@ -145,10 +146,10 @@ export class ModelClass{
     }
 
 
-    // static LoadModel(incomingModelName = ""){
-    //     ModelLoader.LoadModel(incomingModelName);
+    static LoadModel(incomingModelName = ""){
+        ModelLoader.LoadModel(incomingModelName);
         
-    // }   
+    }   
 
     async FitDataWithBatching(inputData, incomingOutputExpected, incomingPossibleOptions, totalEpochAmount = 100, epochLogIteration = 10, dataGroupAmount = 10){
         let numberOfGroups = incomingOutputExpected.shape[0] / dataGroupAmount;
@@ -278,14 +279,14 @@ class ModelLoader{
 
         let hiddenLayersNodes = []
 
-        for(let i = 0; i < dataHolder.weights.length; i++){
+        for(let i = 1; i < dataHolder.weights.length; i++){
             let tempWeightsLength = dataHolder.weights[i].length;
             let tempBiasLength = dataHolder.biases[i].length;
             hiddenLayersNodes.push(tempWeightsLength / tempBiasLength);
         }
 
         let newModel = new ModelClass(dataHolder.name);
-        
+
         newModel.ConfigureModel(
             dataHolder.inputNodesAmount,
             hiddenLayersNodes,
@@ -293,24 +294,39 @@ class ModelLoader{
             dataHolder.activationFunctions[0],
             dataHolder.activationFunctions[dataHolder.activationFunctions.length - 1]
         );
-        
-        //Make combine the weights
-        let totalWeights = [];
 
-        for(let i = 0; i < dataHolder.weights.length; i++){
-            totalWeights.push(dataHolder.weights[i]);
-            totalWeights.push(dataHolder.biases[i]);
+        //Add weights to the layers
+        for(let i = 0; i < newModel.model.layers.length; i++){
+            //Weights Preparation
+
+            //#region TODO: Make sure these dimentions match and doesn't have a remainder
+            let tempWeightXDimention = Math.floor(dataHolder.weights[i].length)/(dataHolder.biases[i].length);
+            let tempWeightYDimention = dataHolder.biases[i].length;
+            let tempWeights = MathFunctions.TurnArrayIntoMatrix(dataHolder.weights[i], tempWeightXDimention, tempWeightYDimention);
+            let tensorTestWeights = tf.tensor(testWeights, [testWeights.length, testWeights[i].length]);
+            //#endregion
+
+            //Bias Preparation
+            let testBiases = dataHolder.biases[i];
+            let tensorTestBiases = tf.tensor(testBiases);
+
+            //Set weights and biases into layer
+            newModel.model.layers[i].weights[0].shape = [tempWeightXDimention, tempWeightYDimention];
+            newModel.model.layers[i].weights[1].shape = [tempWeightYDimention]
+
         }
 
-        let shape = []
-
-        for(let i = 0; i < totalWeights.length; i++){
-            shape.push(totalWeights[i].length)
-        }
-
-        //Figure out how to load weights into model
-
-         
+        let testWeights = MathFunctions.TurnArrayIntoMatrix(dataHolder.weights[0], 12, 21)
+        let tensorTestWeights = tf.tensor(testWeights, [testWeights.length, testWeights[0].length])
+        tensorTestWeights.print();
+        let testBiases = dataHolder.biases[0];
+        let tensorTestBiases = tf.tensor(testBiases);
+        console.log(tensorTestBiases.shape);
+        // newModel.model.layers[0].shape = [12, 21];
+        newModel.model.layers[0].weights[0].shape = [12, 21];
+        newModel.model.layers[0].weights[1].shape = [21]
+        newModel.model.layers[0].setWeights([tensorTestWeights, tensorTestBiases]);
+        //newModel.model.layers[0].setWeights([tf.Tensor(testWeights), tf.ones([21])])
     }
 
     //#region Properties
