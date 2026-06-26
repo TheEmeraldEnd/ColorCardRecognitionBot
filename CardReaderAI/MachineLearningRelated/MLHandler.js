@@ -147,7 +147,7 @@ export class ModelClass{
 
 
     static LoadModel(incomingModelName = ""){
-        ModelLoader.LoadModel(incomingModelName);
+        return ModelLoader.LoadModel(incomingModelName);
         
     }   
 
@@ -259,10 +259,14 @@ class ModelSaver{
 }
 
 class ModelLoader{
-    
-
     //The reason for repeditive names is to make future optimization for not requiring variables easier to replace
     static LoadModel(incomingModelName = ""){
+        //Guard against no model existing
+        if (!IsModelSaved(incomingModelName)){
+            console.log(`Couldn't recieve model. Loading empty model with name ${incomingModelName}`)
+            return new ModelClass(incomingModelName);
+        }
+        
 
         let dataJSON = ModelLoaderHandler.GetModelData(incomingModelName);
 
@@ -302,31 +306,27 @@ class ModelLoader{
             //#region TODO: Make sure these dimentions match and doesn't have a remainder
             let tempWeightXDimention = Math.floor(dataHolder.weights[i].length)/(dataHolder.biases[i].length);
             let tempWeightYDimention = dataHolder.biases[i].length;
+
             let tempWeights = MathFunctions.TurnArrayIntoMatrix(dataHolder.weights[i], tempWeightXDimention, tempWeightYDimention);
-            let tensorTestWeights = tf.tensor(testWeights, [testWeights.length, testWeights[i].length]);
-            //#endregion
+            let tensorTempWeights = tf.tensor(tempWeights, [tempWeights.length, tempWeights[i].length]);
+            // //#endregion
 
             //Bias Preparation
             let testBiases = dataHolder.biases[i];
-            let tensorTestBiases = tf.tensor(testBiases);
+            let tensorTempBiases = tf.tensor(testBiases);
 
             //Set weights and biases into layer
             newModel.model.layers[i].weights[0].shape = [tempWeightXDimention, tempWeightYDimention];
             newModel.model.layers[i].weights[1].shape = [tempWeightYDimention]
 
+            newModel.model.layers[i].setWeights([tensorTempWeights, tensorTempBiases]);
+
         }
 
-        let testWeights = MathFunctions.TurnArrayIntoMatrix(dataHolder.weights[0], 12, 21)
-        let tensorTestWeights = tf.tensor(testWeights, [testWeights.length, testWeights[0].length])
-        tensorTestWeights.print();
-        let testBiases = dataHolder.biases[0];
-        let tensorTestBiases = tf.tensor(testBiases);
-        console.log(tensorTestBiases.shape);
-        // newModel.model.layers[0].shape = [12, 21];
-        newModel.model.layers[0].weights[0].shape = [12, 21];
-        newModel.model.layers[0].weights[1].shape = [21]
-        newModel.model.layers[0].setWeights([tensorTestWeights, tensorTestBiases]);
-        //newModel.model.layers[0].setWeights([tf.Tensor(testWeights), tf.ones([21])])
+        newModel.CompileMachine(dataHolder.lossFunction, dataHolder.optimizerFunction);
+
+        console.log(`Loaded ${newModel.GetName()} Successfully`);
+        return newModel;
     }
 
     //#region Properties
@@ -378,6 +378,10 @@ class ModelLoader{
         return result;
     }
     //#endregion
+}
+
+export function IsModelSaved(incomingName){
+    return ModelLoaderHandler.IsBotSaved(incomingName);
 }
 
 export class HiddenNodeRecommender{

@@ -104,6 +104,25 @@ namespace DataPrepper.Console_Related
 
                 GoodComputerTalk("GenerationComplete");
             }
+            else if (incomingCommand == nameof(GenerateInBatches).ToUpper())
+            {
+                string input = "";
+
+                while (input.ToUpper() != "NO" || input.Trim() == "" || input.ToUpper() == "YES")
+                {
+                    NeutralComputerTalk("Refresh and Generate?");
+                    GoodComputerTalk("Yes or empty");
+                    ErrorComputerTalk("NO or anything else");
+                    input = Console.ReadLine();
+
+                    if (input.ToUpper() == "YES" || input.ToUpper().Trim() == "")
+                    GenerateInBatches();
+
+
+                }
+
+
+            }
             else if (incomingCommand == nameof(RefreshData).ToUpper())
             {
                 ErrorComputerTalk("This is a big ask. You are deleting training data. Are you sure? (YES if sure):");
@@ -115,7 +134,7 @@ namespace DataPrepper.Console_Related
                     GoodComputerTalk("Refresh done. Old data deleted. Data Directory freshed.");
                     GenerateTestHistograms();
                     GoodComputerTalk("Test histograms regenerated");
-                    
+
                 }
                 else
                 {
@@ -183,6 +202,54 @@ namespace DataPrepper.Console_Related
             DataConfigHandler.GenerateDataConfigFileAndDirectories();
         }
 
+        public static void GenerateInBatches()
+        {
+            RefreshData();
+            GoodComputerTalk("Refresh done. Old data deleted. Data Directory freshed.");
+            GenerateTestHistograms();
+            GoodComputerTalk("Test histograms regenerated");
+            NeutralComputerTalk("How many histograms? (Please Write number) (negative or 0 to quit):");
+            string input = Console.ReadLine();
+            int repeatAmount = -1;
+
+            //Parsing input
+            do
+            {
+                try
+                {
+                    if (input == "")
+                    {
+                        repeatAmount = 1;
+                    }
+                    else
+                    {
+                        repeatAmount = int.Parse(input);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorComputerTalk("Exception Caught, please try again. If not, then type in 0");
+                    ErrorComputerTalk($"{ex.Message}");
+                }
+
+                if (repeatAmount < -1)
+                {
+                    repeatAmount = -1;
+                    ErrorComputerTalk("Exception Caught, please try again. If not, then type in 0");
+                    NeutralComputerTalk($"Please type a number between 0 or greater");
+                }
+
+            } while (repeatAmount < 0);
+
+            for (int i = 0; i < repeatAmount; i++)
+            {
+                Generate();
+                NeutralComputerTalk($"{i + 1} out of {repeatAmount} | {(((float)i + 1) / (float)repeatAmount):P2} done");
+            }
+
+
+            GoodComputerTalk("GenerationComplete");
+        }
         public static void Help()
         {
             NeutralComputerTalk("Here are the commands I've been programmed with...");
@@ -190,6 +257,7 @@ namespace DataPrepper.Console_Related
             GoodComputerTalk(nameof(GenerateExample));
             GoodComputerTalk(nameof(RefreshData));
             GoodComputerTalk(nameof(Help));
+            GoodComputerTalk(nameof(GenerateInBatches));
             GoodComputerTalk("");
 
             ErrorComputerTalk("These are to leave if you wish to...");
