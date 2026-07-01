@@ -111,7 +111,7 @@ botGroup.GetSummary();
 
 botGroup.CompileMachines()
 
-botGroup.FitDataWithBatching(
+await botGroup.FitDataWithBatching(
     formattedTrainingData.GetRawColorDataAsTensor(),
     DataTranslator.BinaryTranslator.LabelsToIndexesTensor(formattedTrainingData.GetLabelsAsArray(), formattedTrainingData.GetOptionNames()),
     formattedTrainingData.GetOptionNames(),
@@ -121,5 +121,8 @@ botGroup.FitDataWithBatching(
 );
 
 botGroup.GetSummary();
+
+botGroup.predictAll(formattedTrainingData.GetRawColorDataAsTensor())[0].print();
+
 //#endregion
 

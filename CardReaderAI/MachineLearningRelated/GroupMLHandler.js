@@ -64,6 +64,18 @@ export class GroupMachineClass{
         }
     }
 
+    predictAll(incomingData){
+        let predictionResults = []
+        for(let i = 0; i < this.bots.length; i++){
+            let predictionString = this.bots[i].predict(incomingData);
+            predictionResults.push(predictionString);
+        }
+
+        return predictionResults;
+    }
+
+    
+
     GetName(){
         return this.groupName;
     }
@@ -74,7 +86,7 @@ export class GroupMachineClass{
 
 
     static LoadModel(incomingModelName = ""){
-        
+         
     }   
 
     async FitDataWithBatching(inputData, incomingOutputExpected, incomingPossibleOptions, totalEpochAmount = 100, epochLogIteration = 10, dataGroupAmount = 10){
