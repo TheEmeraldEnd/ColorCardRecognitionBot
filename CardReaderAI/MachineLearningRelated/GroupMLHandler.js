@@ -10,9 +10,10 @@ export class GroupMachineClass{
         }
 
         this.bots = [];
+        this.groupName = groupName;
 
         for(let i = 0; i < amountOfBots; i++){
-            this.AddNewBot(groupName)
+            this.AddNewBot(this.groupName)
         }
     }
 
@@ -51,7 +52,7 @@ export class GroupMachineClass{
         this.bots.forEach(b => b.GetSummary());
     }
 
-    CompileMachine(lossFunction = 'meanSquaredError', icomingOptimizer = 'sgd'){
+    CompileMachines(lossFunction = 'meanSquaredError', icomingOptimizer = 'sgd'){
         this.bots.map(b => b.CompileMachine(lossFunction, icomingOptimizer ))
     }
 
@@ -63,16 +64,8 @@ export class GroupMachineClass{
         }
     }
 
-    predict(incomingData){
-        
-    }
-
     GetName(){
-
-    }
-
-    LogPredict(incomingPredictedLabels, actualLabels, possibleOptions, predictionTensor ){
-
+        return this.groupName;
     }
 
     async SaveModel(){
@@ -85,13 +78,21 @@ export class GroupMachineClass{
     }   
 
     async FitDataWithBatching(inputData, incomingOutputExpected, incomingPossibleOptions, totalEpochAmount = 100, epochLogIteration = 10, dataGroupAmount = 10){
+        console.log(`Please wait until the data is done batching for ${this.groupName}`)
 
+        //Possibly remove await and put it later for better performance with multithreading
+        for(let i = 0; i < this.bots.length; i++){
+            await this.bots[i].FitDataWithBatching(inputData, incomingOutputExpected, incomingPossibleOptions, totalEpochAmount, epochLogIteration, dataGroupAmount);
+        }
+
+        await Promise.resolve
+        console.log(`Data batching for group ${this.groupName}`)
     }
 
-    // AddNewBot(incomingName = ""){
-    //     let tempMachineLearner = new MLHandler.ModelClass(incomingName);
-    //     this.bots.push(tempMachineLearner);
-    // }
+    AddNewBot(incomingName = ""){
+        let tempMachineLearner = new MLHandler.ModelClass(incomingName);
+        this.bots.push(tempMachineLearner);
+    }
 
     // GetSummaries(){
     //     this.bots.forEach(b => b.GetSummary());

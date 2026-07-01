@@ -13,17 +13,17 @@ import * as MathExtension from "./MathRelated/MathFunctions.js"
 
 import * as MLGroupHandler from "./MachineLearningRelated/GroupMLHandler.js"
 
+let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
+let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(trainingHistograms, OptionsHandler.GetOptionNames());
+
+let numberOfInputNodes = formattedTrainingData.GetLengthsOfRawColorArray();
+let numberOfOutputNodes = formattedTrainingData.GetPossibleOptionsLength();
+
+let totalHiddenNodes = MLHandler.HiddenNodeRecommender.GetHiddenNodesBySimpleMethod(numberOfInputNodes, numberOfOutputNodes);
+let hiddenLayerAmmount = 2;
+let hiddenNodesPerLayer = MLHandler.HiddenNodeRecommender.SetNumberOfHiddenNodesByLayer(totalHiddenNodes, hiddenLayerAmmount);
+
 //#region Single training
-// let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
-// let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(trainingHistograms, OptionsHandler.GetOptionNames());
-
-// let numberOfInputNodes = formattedTrainingData.GetLengthsOfRawColorArray();
-// let numberOfOutputNodes = formattedTrainingData.GetPossibleOptionsLength();
-
-// let totalHiddenNodes = MLHandler.HiddenNodeRecommender.GetHiddenNodesBySimpleMethod(numberOfInputNodes, numberOfOutputNodes);
-// let hiddenLayerAmmount = 2;
-// let hiddenNodesPerLayer = MLHandler.HiddenNodeRecommender.SetNumberOfHiddenNodesByLayer(totalHiddenNodes, hiddenLayerAmmount);
-
 // let testModelName = 'SomeName'
 
 // let newModel;
@@ -94,7 +94,32 @@ import * as MLGroupHandler from "./MachineLearningRelated/GroupMLHandler.js"
 // }
 //#endregion
 
+
+//#region Group training
 let testGroupName = 'AlotaBots'
 let amountOfBotsTested = 10;
 let botGroup = new MLGroupHandler.GroupMachineClass(amountOfBotsTested, testGroupName);
-botGroup.GetSummaries();
+
+botGroup.ConfigureModel(
+    numberOfInputNodes,
+    hiddenNodesPerLayer,
+    numberOfOutputNodes,
+    'ReLU',
+    'sigmoid');
+
+botGroup.GetSummary();
+
+botGroup.CompileMachines()
+
+botGroup.FitDataWithBatching(
+    formattedTrainingData.GetRawColorDataAsTensor(),
+    DataTranslator.BinaryTranslator.LabelsToIndexesTensor(formattedTrainingData.GetLabelsAsArray(), formattedTrainingData.GetOptionNames()),
+    formattedTrainingData.GetOptionNames(),
+    20,
+    10,
+    5
+);
+
+botGroup.GetSummary();
+//#endregion
+
