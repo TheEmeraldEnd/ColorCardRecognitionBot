@@ -75,6 +75,7 @@ export class GroupMachineClass{
         return predictionResults;
     }
 
+    //Still under construction
     PredictAllAndSort(incomingDataRawColorData, incomingOptionNames, dataTranslatorClass, actualLabels){
         let collectionOfResultTensors = this.predictAll(incomingDataRawColorData);
         collectionOfResultTensors[0].print();
