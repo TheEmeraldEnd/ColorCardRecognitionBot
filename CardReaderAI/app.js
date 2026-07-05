@@ -121,8 +121,14 @@ await botGroup.FitDataWithBatching(
 );
 
 botGroup.GetSummary();
+let functionCall = DataTranslator.BinaryTranslator;
 
-botGroup.predictAll(formattedTrainingData.GetRawColorDataAsTensor())[0].print();
+//Format to accept parameters properly
+botGroup.PredictAllAndSort(
+    formattedTrainingData.GetRawColorDataAsTensor(), 
+    formattedTrainingData.GetOptionNames(),
+    functionCall,
+    formattedTrainingData.GetLabelsAsArray());
 
 //#endregion
 

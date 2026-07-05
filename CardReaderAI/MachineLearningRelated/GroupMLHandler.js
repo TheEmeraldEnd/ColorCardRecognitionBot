@@ -1,4 +1,5 @@
 import * as MLHandler from '../MachineLearningRelated/MLHandler.js'
+import * as DataComparer from "../DataRelated/DataComparer.js";
 
 export class GroupMachineClass{
 
@@ -64,14 +65,35 @@ export class GroupMachineClass{
         }
     }
 
-    predictAll(incomingData){
+    predictAll(incomingRawColorData){
         let predictionResults = []
         for(let i = 0; i < this.bots.length; i++){
-            let predictionString = this.bots[i].predict(incomingData);
+            let predictionString = this.bots[i].predict(incomingRawColorData);
             predictionResults.push(predictionString);
         }
 
         return predictionResults;
+    }
+
+    PredictAllAndSort(incomingDataRawColorData, incomingOptionNames, dataTranslatorClass, actualLabels){
+        let collectionOfResultTensors = this.predictAll(incomingDataRawColorData);
+        collectionOfResultTensors[0].print();
+
+        // let rawArrayResult = rawTensorResult.dataSync();
+        let accuracies = [];
+
+        for(let i = 0; i < collectionOfResultTensors.length; i++){
+            let tempResultTensor = collectionOfResultTensors[i];
+            let tempPredictionLabels = dataTranslatorClass.IndexesToLabels(tempResultTensor.arraySync(), incomingDataRawColorData )
+            console.log(tempPredictionLabels)
+            let comparer = DataComparer.CompareLabels(tempPredictionLabels, actualLables);
+
+            console.log(comparer)
+            let accuracyResult = 0.0;
+        }
+        // let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), incomingOptionNames);
+
+        // DataComparer.CompareLabels(result, formattedTrainingData.GetLabelsAsArray());
     }
 
     
@@ -105,8 +127,4 @@ export class GroupMachineClass{
         let tempMachineLearner = new MLHandler.ModelClass(incomingName);
         this.bots.push(tempMachineLearner);
     }
-
-    // GetSummaries(){
-    //     this.bots.forEach(b => b.GetSummary());
-    // }
 }
