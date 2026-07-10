@@ -1,5 +1,6 @@
 import * as MLHandler from '../MachineLearningRelated/MLHandler.js'
 import * as DataComparer from "../DataRelated/DataComparer.js";
+import * as WeightRandomizer from './WeightRandomizer.js';
 
 export class GroupMachineClass{
 
@@ -75,27 +76,37 @@ export class GroupMachineClass{
         return predictionResults;
     }
 
-    //Still under construction
-    PredictAllAndSort(incomingDataRawColorData, incomingOptionNames, dataTranslatorClass, actualLabels){
-        let collectionOfResultTensors = this.predictAll(incomingDataRawColorData);
-        collectionOfResultTensors[0].print();
-
-        // let rawArrayResult = rawTensorResult.dataSync();
-        let accuracies = [];
-
-        for(let i = 0; i < collectionOfResultTensors.length; i++){
-            let tempResultTensor = collectionOfResultTensors[i];
-            let tempPredictionLabels = dataTranslatorClass.IndexesToLabels(tempResultTensor.arraySync(), incomingDataRawColorData )
-            console.log(tempPredictionLabels)
-            let comparer = DataComparer.CompareLabels(tempPredictionLabels, actualLables);
-
-            console.log(comparer)
-            let accuracyResult = 0.0;
+    RandomizeWeightsAndBiases(maxWeightChangeVariation = 0.01, maxChanceWeightMutates = 0.01){
+        for(let i = 0; i < this.bots.length; i++){
+            this.bots[i].model.getWeights()[0].print()
+            let currentBotWeightArray = this.bots[i].model.getWeights()
+            let weights = WeightRandomizer.RandomizeWeights(currentBotWeightArray, maxWeightChangeVariation, maxChanceWeightMutates)
+            this.bots[i].model.setWeights(weights)
+            this.bots[i].model.getWeights()[0].print()
         }
-        // let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), incomingOptionNames);
-
-        // DataComparer.CompareLabels(result, formattedTrainingData.GetLabelsAsArray());
     }
+
+    //Still under construction
+    // PredictAllAndSort(incomingDataRawColorData, incomingOptionNames, dataTranslatorClass, actualLabels){
+    //     let collectionOfResultTensors = this.predictAll(incomingDataRawColorData);
+    //     collectionOfResultTensors[0].print();
+
+    //     // let rawArrayResult = rawTensorResult.dataSync();
+    //     let accuracies = [];
+
+    //     for(let i = 0; i < collectionOfResultTensors.length; i++){
+    //         let tempResultTensor = collectionOfResultTensors[i];
+    //         let tempPredictionLabels = dataTranslatorClass.IndexesToLabels(tempResultTensor.arraySync(), incomingDataRawColorData )
+    //         console.log(tempPredictionLabels)
+    //         let comparer = DataComparer.CompareLabels(tempPredictionLabels, actualLables);
+
+    //         console.log(comparer)
+    //         let accuracyResult = 0.0;
+    //     }
+    //     // let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), incomingOptionNames);
+
+    //     // DataComparer.CompareLabels(result, formattedTrainingData.GetLabelsAsArray());
+    // }
 
     
 

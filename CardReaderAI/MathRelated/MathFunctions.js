@@ -16,6 +16,10 @@ export function GetRandomInt(min = 0, max = 1){
     return Math.floor(Math.random(Date.now()) * (max - min) + min)
 }
 
+export function CoinFlip(){
+    return GetRandomInt(0, 2);
+}
+
 export function TurnArrayIntoMatrix(incomingArray, incomingXValue = 0, incomingYValue = 0){
     if (incomingXValue * incomingYValue != incomingArray.length){
         console.error('Values don]=\' match');
@@ -25,4 +29,8 @@ export function TurnArrayIntoMatrix(incomingArray, incomingXValue = 0, incomingY
 
     let result = tempTensor.arraySync();
     return result;
+}
+
+export function RandomizeNegativeOrPositive(){
+    return CoinFlip() == 1 ? -1 : 1;
 }

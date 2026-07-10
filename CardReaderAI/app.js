@@ -13,6 +13,8 @@ import * as MathExtension from "./MathRelated/MathFunctions.js"
 
 import * as MLGroupHandler from "./MachineLearningRelated/GroupMLHandler.js"
 
+import * as WeightRandomizer from './MachineLearningRelated/WeightRandomizer.js'
+
 let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
 let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(trainingHistograms, OptionsHandler.GetOptionNames());
 
@@ -121,14 +123,20 @@ await botGroup.FitDataWithBatching(
 );
 
 botGroup.GetSummary();
-let functionCall = DataTranslator.BinaryTranslator;
+
+//botGroup.RandomizeWeightsAndBiases()
+
+// let functionCall = DataTranslator.BinaryTranslator;
 
 //Format to accept parameters properly
-botGroup.PredictAllAndSort(
-    formattedTrainingData.GetRawColorDataAsTensor(), 
-    formattedTrainingData.GetOptionNames(),
-    functionCall,
-    formattedTrainingData.GetLabelsAsArray());
+// botGroup.PredictAllAndSort(
+//     formattedTrainingData.GetRawColorDataAsTensor(), 
+//     formattedTrainingData.GetOptionNames(),
+//     functionCall,
+//     formattedTrainingData.GetLabelsAsArray());
+
+botGroup.RandomizeWeightsAndBiases(0.1, 0.1);
+
 
 //#endregion
 
