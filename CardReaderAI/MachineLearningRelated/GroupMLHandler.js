@@ -1,6 +1,7 @@
 import * as MLHandler from '../MachineLearningRelated/MLHandler.js'
 import * as DataComparer from "../DataRelated/DataComparer.js";
 import * as WeightRandomizer from './WeightRandomizer.js';
+import * as MathExtension from '../MathRelated/MathFunctions.js'
 
 export class GroupMachineClass{
 
@@ -13,6 +14,7 @@ export class GroupMachineClass{
 
         this.bots = [];
         this.groupName = groupName;
+        this.amountOfBots = amountOfBots;
 
         for(let i = 0; i < amountOfBots; i++){
             this.AddNewBot(this.groupName)
@@ -76,14 +78,55 @@ export class GroupMachineClass{
         return predictionResults;
     }
 
-    RandomizeWeightsAndBiases(maxWeightChangeVariation = 0.01, maxChanceWeightMutates = 0.01){
+    RandomizeWeightsForOneModel(maxWeightChangeVariation = 0.01, maxChanceWeightMutates = 0.01, index = 0){
+        let currentBotWeightArray = this.bots[index].model.getWeights()
+        let weights = WeightRandomizer.RandomizeWeights(currentBotWeightArray, maxWeightChangeVariation, maxChanceWeightMutates)
+        this.bots[index].model.setWeights(weights)
+    }
+
+    RandomizeWeightsAndBiasesAll(maxWeightChangeVariation = 0.01, maxChanceWeightMutates = 0.01){
         for(let i = 0; i < this.bots.length; i++){
-            this.bots[i].model.getWeights()[0].print()
-            let currentBotWeightArray = this.bots[i].model.getWeights()
-            let weights = WeightRandomizer.RandomizeWeights(currentBotWeightArray, maxWeightChangeVariation, maxChanceWeightMutates)
-            this.bots[i].model.setWeights(weights)
-            this.bots[i].model.getWeights()[0].print()
+            this.RandomizeWeightsForOneModel(maxWeightChangeVariation, maxChanceWeightMutates, i);
         }
+    }
+
+    //Assumed highest is at front of list
+    DeleteHalfHIghest(){
+        //Guard rails
+        if ([0, 1].includes(this.bots.length)){
+            return;
+        }
+
+        let lengthOfDeletion = Math.floor(this.bots.length/2.0)
+
+        this.bots.splice(0, lengthOfDeletion)
+    }
+
+    //Assumes lowest are at the back
+    DeleteHalfLowest(){
+        //Guard rails
+        if ([0, 1].includes(this.bots.length)){
+            return;
+        }
+
+        let lengthOfDeletion = Math.floor(this.bots.length/2.0)
+
+        this.bots.splice(this.bots.length - lengthOfDeletion, lengthOfDeletion)
+    }
+
+    DeleteHalfRandom(){
+        //Guard rails
+        if ([0, 1].includes(this.bots.length)){
+            return;
+        }
+
+        let lengthOfDeletion = Math.floor(this.bots.length/2.0)
+
+        for(let i = 0; i < lengthOfDeletion; i++){
+            this.bots.splice( MathExtension.GetRandomInt(0, this.bots.length), 1)
+        }
+
+        console.log(this.bots.length)
     }
 
     //Still under construction

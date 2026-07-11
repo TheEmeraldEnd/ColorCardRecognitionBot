@@ -14,6 +14,7 @@ import * as MathExtension from "./MathRelated/MathFunctions.js"
 import * as MLGroupHandler from "./MachineLearningRelated/GroupMLHandler.js"
 
 import * as WeightRandomizer from './MachineLearningRelated/WeightRandomizer.js'
+import * as ActivationFunctions from './MachineLearningRelated/ActivationFunctions.js'
 
 let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
 let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(trainingHistograms, OptionsHandler.GetOptionNames());
@@ -102,12 +103,15 @@ let testGroupName = 'AlotaBots'
 let amountOfBotsTested = 10;
 let botGroup = new MLGroupHandler.GroupMachineClass(amountOfBotsTested, testGroupName);
 
+let hiddenActivationFunction = ActivationFunctions.GetRandomActivationFunction(false);
+let finalActivationFunction = ActivationFunctions.GetRandomActivationFunction(true)
+
 botGroup.ConfigureModel(
     numberOfInputNodes,
     hiddenNodesPerLayer,
     numberOfOutputNodes,
-    'ReLU',
-    'sigmoid');
+    hiddenActivationFunction,
+    finalActivationFunction);
 
 botGroup.GetSummary();
 
@@ -124,6 +128,8 @@ await botGroup.FitDataWithBatching(
 
 botGroup.GetSummary();
 
+botGroup.DeleteHalfRandom();
+
 //botGroup.RandomizeWeightsAndBiases()
 
 // let functionCall = DataTranslator.BinaryTranslator;
@@ -134,8 +140,6 @@ botGroup.GetSummary();
 //     formattedTrainingData.GetOptionNames(),
 //     functionCall,
 //     formattedTrainingData.GetLabelsAsArray());
-
-botGroup.RandomizeWeightsAndBiases(0.1, 0.1);
 
 
 //#endregion
