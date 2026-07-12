@@ -149,4 +149,6 @@ for(let i = 0; i < predictionTensors.length; i++){
 let actualLabels = formattedTrainingData.GetLabelsAsArray();
 botGroup.PredictAllAndSort(predictedLabelses, actualLabels);
 
+botGroup.GetGroupAverageAccuracy()
+
 //#endregion

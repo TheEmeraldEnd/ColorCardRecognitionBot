@@ -176,6 +176,16 @@ export class GroupMachineClass{
         return results;
     }
 
+    GetGroupAverageAccuracy(){
+        let result = 0.0;
+        let count = this.bots.length;
+        for(let i = 0; i < count; i++){
+            result += this.bots[i].lastRecordedAccuracy;
+        }
+        console.log(`Average group accuracy for ${this.GetName()}: ${(result/count) * 100.0}%`)
+        return result/count;
+    }
+
     LogAccuracies(incomingPredictedLabelsArray = [], actualLabels){
         if (this.bots.length != incomingPredictedLabelsArray.length){
             console.log(`Lengths do not match to log accuracies.`)
