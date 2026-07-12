@@ -103,8 +103,8 @@ let testGroupName = 'AlotaBots'
 let amountOfBotsTested = 10;
 let botGroup = new MLGroupHandler.GroupMachineClass(amountOfBotsTested, testGroupName);
 
-let hiddenActivationFunction = ActivationFunctions.GetRandomActivationFunction(false);
-let finalActivationFunction = ActivationFunctions.GetRandomActivationFunction(true)
+let hiddenActivationFunction = ActivationFunctions.GetRelu();
+let finalActivationFunction = ActivationFunctions.GetSigmoid();
 
 botGroup.ConfigureModel(
     numberOfInputNodes,
@@ -127,20 +127,26 @@ await botGroup.FitDataWithBatching(
 );
 
 botGroup.GetSummary();
+// let predictionTensor = botGroup.bots[0].predict(formattedTrainingData.GetRawColorDataAsTensor())
+// let predictedLabels = DataTranslator.BinaryTranslator.IndexesToLabels(
+//         predictionTensor.arraySync(), 
+//         formattedTrainingData.GetOptionNames());
+// let actualLabels = formattedTrainingData.GetLabelsAsArray();
+// botGroup.bots[0].LogAccuracy(
+//     predictedLabels,
+//     actualLabels);
 
-botGroup.DeleteHalfRandom();
+//Get prediction tensors
+let predictionTensors = botGroup.PredictAll(formattedTrainingData.GetRawColorDataAsTensor());
 
-//botGroup.RandomizeWeightsAndBiases()
+let predictedLabelses = [];
+for(let i = 0; i < predictionTensors.length; i++){
+    predictedLabelses.push(DataTranslator.BinaryTranslator.IndexesToLabels(
+         predictionTensors[i].arraySync(), 
+         formattedTrainingData.GetOptionNames()))
+}
 
-// let functionCall = DataTranslator.BinaryTranslator;
-
-//Format to accept parameters properly
-// botGroup.PredictAllAndSort(
-//     formattedTrainingData.GetRawColorDataAsTensor(), 
-//     formattedTrainingData.GetOptionNames(),
-//     functionCall,
-//     formattedTrainingData.GetLabelsAsArray());
-
+let actualLabels = formattedTrainingData.GetLabelsAsArray();
+botGroup.PredictAllAndSort(predictedLabelses, actualLabels);
 
 //#endregion
-

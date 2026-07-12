@@ -11,6 +11,7 @@ export class ModelClass{
         this.model = tf.sequential({name: incomingName});
         this.activationFunctions = [];
         this.optimizer = "";
+        this.lastRecordedAccuracy = 0.0;
     }
 
     InitializeSequentialModel(incomingName){
@@ -118,18 +119,26 @@ export class ModelClass{
         console.log(`Fitting for ${this.GetName()} is complete`);
     }
 
+    GetName(){
+        return this.model.name;
+    }
+
     predict(incomingData){
         let result = this.model.predict(incomingData);
         console.log(`Preidction for ${this.GetName()} is complete`)
         return result;
     }
 
-    GetName(){
-        return this.model.name;
+    LogAccuracy(incomingPredictedLabels, actualLabels){
+        this.lastRecordedAccuracy = DataComparer.CopmareLabelsStringReturnFloat(incomingPredictedLabels, actualLabels)
+        console.log(this.lastRecordedAccuracy)
+        return this.lastRecordedAccuracy;
     }
 
     LogPredict(incomingPredictedLabels, actualLabels, possibleOptions, predictionTensor ){
         let resultContent = DataComparer.CompareLabelsReturnString(incomingPredictedLabels, actualLabels);
+
+        this.LogAccuracy(incomingPredictedLabels, actualLabels)
 
         resultContent += `\nRecorded ${new Date().toLocaleString()}`
 

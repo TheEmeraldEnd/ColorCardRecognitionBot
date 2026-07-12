@@ -2,6 +2,7 @@ import * as MLHandler from '../MachineLearningRelated/MLHandler.js'
 import * as DataComparer from "../DataRelated/DataComparer.js";
 import * as WeightRandomizer from './WeightRandomizer.js';
 import * as MathExtension from '../MathRelated/MathFunctions.js'
+import * as ActivationFunctions from './ActivationFunctions.js'
 
 export class GroupMachineClass{
 
@@ -90,8 +91,43 @@ export class GroupMachineClass{
         }
     }
 
-    //Assumed highest is at front of list
-    DeleteHalfHIghest(){
+    //Bots may need recompilation afterwards
+    RandomizeActivationsAll(isRandomizeHidden = false, isRandomizeFinal = false, isHiddenSame = true){
+        for(let i = 0; i < this.bots.length; i++){
+            this.RandomizeActivations(i, isRandomizeHidden, isRandomizeFinal, isHiddenSame)
+        }
+    }
+
+    //Bots may need recompilation afterwards
+    RandomizeActivations(index = 0, isRandomizeHidden = false, isRandomizeFinal = false, isHiddenSame = true){
+        let botLayerLengthAmmount = this.bots[index].model.layers.length;
+        let hiddenLayerAmmount = botLayerLengthAmmount - 1;
+        let finalLayerAmount = botLayerLengthAmmount === 0? 0 : 1;
+
+        if (isRandomizeHidden === true && hiddenLayerAmmount >= 1){
+
+            let prepickedActivation = ActivationFunctions.GetRandomActivationFunction(false);
+
+            for(let i = 0; i < hiddenLayerAmmount; i++){
+                let tempActivationFunction;
+
+                if (isHiddenSame)
+                    tempActivationFunction = prepickedActivation;
+                else
+                    tempActivationFunction = ActivationFunctions.GetRandomActivationFunction(false)
+
+                this.bots[index].model.layers[i].activation = tempActivationFunction;
+            }
+        }
+
+        if (isRandomizeFinal === true && finalLayerAmount > 0){
+            this.bots[index].model.layers[botLayerLengthAmmount - 1].activation = 
+                 ActivationFunctions.GetRandomActivationFunction(true);
+        }
+    }
+
+    //Assumed highest is at end of array
+    DeleteHalfLowest(){
         //Guard rails
         if ([0, 1].includes(this.bots.length)){
             return;
@@ -102,8 +138,8 @@ export class GroupMachineClass{
         this.bots.splice(0, lengthOfDeletion)
     }
 
-    //Assumes lowest are at the back
-    DeleteHalfLowest(){
+    //Assumes lowest are at beginnning
+    DeleteHalfHighest(){
         //Guard rails
         if ([0, 1].includes(this.bots.length)){
             return;
@@ -129,29 +165,39 @@ export class GroupMachineClass{
         console.log(this.bots.length)
     }
 
+    PredictAll(incomingData){
+        let results = [];
+
+        for(let i = 0; i < this.bots.length; i++){
+            results.push(this.bots[i].predict(incomingData))
+        }
+       
+
+        return results;
+    }
+
+    LogAccuracies(incomingPredictedLabelsArray = [], actualLabels){
+        if (this.bots.length != incomingPredictedLabelsArray.length){
+            console.log(`Lengths do not match to log accuracies.`)
+            return;
+        }
+        let tempAccuracies = [];
+        for(let i = 0; i < incomingPredictedLabelsArray.length; i++){
+            tempAccuracies.push(this.bots[i].LogAccuracy(incomingPredictedLabelsArray[i], actualLabels));
+        }
+        return tempAccuracies;
+    }
+
     //Still under construction
-    // PredictAllAndSort(incomingDataRawColorData, incomingOptionNames, dataTranslatorClass, actualLabels){
-    //     let collectionOfResultTensors = this.predictAll(incomingDataRawColorData);
-    //     collectionOfResultTensors[0].print();
-
-    //     // let rawArrayResult = rawTensorResult.dataSync();
-    //     let accuracies = [];
-
-    //     for(let i = 0; i < collectionOfResultTensors.length; i++){
-    //         let tempResultTensor = collectionOfResultTensors[i];
-    //         let tempPredictionLabels = dataTranslatorClass.IndexesToLabels(tempResultTensor.arraySync(), incomingDataRawColorData )
-    //         console.log(tempPredictionLabels)
-    //         let comparer = DataComparer.CompareLabels(tempPredictionLabels, actualLables);
-
-    //         console.log(comparer)
-    //         let accuracyResult = 0.0;
-    //     }
-    //     // let result = DataTranslator.BinaryTranslator.IndexesToLabels(rawTensorResult.arraySync(), incomingOptionNames);
-
-    //     // DataComparer.CompareLabels(result, formattedTrainingData.GetLabelsAsArray());
-    // }
-
-    
+    PredictAllAndSort(incomingPredictedLabelsArray = [], actualLabels){
+        this.LogAccuracies(incomingPredictedLabelsArray, actualLabels);
+        this.bots.sort(function(object1, object2){
+            if (object1.lastRecordedAccuracy > object2.lastRecordedAccuracy) return 1;
+            else if (object1.lastRecordedAccuracy < object2.lastRecordedAccuracy) return -1;
+            else return 0;
+        })
+        console.log(`Accuracies recorded and bots sorted on ${this.GetName()}`)
+    } 
 
     GetName(){
         return this.groupName;
