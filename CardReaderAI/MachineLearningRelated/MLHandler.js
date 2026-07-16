@@ -1,500 +1,609 @@
 import * as tf from '@tensorflow/tfjs';
-import * as DataComparer from "../DataRelated/DataComparer.js";
-import * as LogHandler from "../FileRelated/LogHandler.js";
-import * as ModelLoaderHandler from "../FileRelated/ModelLoaderHandler.js";
+import * as DataComparer from '../DataRelated/DataComparer.js';
+import * as LogHandler from '../FileRelated/LogHandler.js';
+import * as ModelLoaderHandler from '../FileRelated/ModelLoaderHandler.js';
 import { DataHolder as DataHolder } from '../DataRelated/DataHolder.js';
 import * as MathFunctions from '../MathRelated/MathFunctions.js';
 import * as WeightRandomizer from './WeightRandomizer.js';
-import * as ActivationFunctionFunctions from './ActivationFunctions.js'
+import * as ActivationFunctionFunctions from './ActivationFunctions.js';
 
-export class ModelClass{
+export class ModelClass {
+	constructor(incomingName = '') {
+		this.model = tf.sequential({ name: incomingName });
+		this.activationFunctions = [];
+		this.optimizer = '';
+		this.lastRecordedAccuracy = 0.0;
+	}
 
-    constructor(incomingName = ""){
-        this.model = tf.sequential({name: incomingName});
-        this.activationFunctions = [];
-        this.optimizer = "";
-        this.lastRecordedAccuracy = 0.0;
-    }
+	InitializeSequentialModel(incomingName) {
+		this.model = tf.sequential({ name: incomingName });
+	}
 
-    InitializeSequentialModel(incomingName){
-        this.model = tf.sequential({name:incomingName});
-        
-    }
+	AddLayerAfterInputLayer(
+		inputLayerNodes = 1,
+		nextLayerNodes = 1,
+		activationFunction = 'tanh',
+	) {
+		let nextLayer = tf.layers.dense({
+			inputShape: inputLayerNodes,
+			units: nextLayerNodes,
+			activation: activationFunction,
+		});
 
-    AddLayerAfterInputLayer(inputLayerNodes = 1, nextLayerNodes = 1, activationFunction = 'tanh'){
-        let nextLayer = tf.layers.dense({
-            inputShape: inputLayerNodes,
-            units: nextLayerNodes,
-            activation: activationFunction,
-        });
-        
-        this.model.add(
-            nextLayer
-        );
+		this.model.add(nextLayer);
 
-        this.activationFunctions.push(activationFunction);
-    }
+		this.activationFunctions.push(activationFunction);
+	}
 
-    AddLayer(nextLayerNodes = 1, activationFunction = ''){
-        let nextLayer = null;
+	AddLayer(nextLayerNodes = 1, activationFunction = '') {
+		let nextLayer = null;
 
-        if (activationFunction === ''){
-            nextLayer = 
-                tf.layers.dense({
-                    units:nextLayerNodes
-                });
-        }
-        else{
-            nextLayer = 
-                tf.layers.dense({
-                    units: nextLayerNodes,
-                    activation: activationFunction
-                })
-        }
+		if (activationFunction === '') {
+			nextLayer = tf.layers.dense({ units: nextLayerNodes });
+		} else {
+			nextLayer = tf.layers.dense({
+				units: nextLayerNodes,
+				activation: activationFunction,
+			});
+		}
 
-        this.model.add(nextLayer);
-        this.activationFunctions.push(activationFunction);
-    }
+		this.model.add(nextLayer);
+		this.activationFunctions.push(activationFunction);
+	}
 
-    ConfigureModel(
-        inputLayerNodes = 1, 
-        hiddenLayerNodes = [], 
-        outputNodeAmounts = 1, 
-        hiddenLayerActivationFunction = 'tanh',
-        outputLayerActivationFunction = 'sigmoid'){
-        
-        if (hiddenLayerNodes.length === 0){
-            this.AddLayerAfterInputLayer(inputLayerNodes, outputNodeAmounts, outputLayerActivationFunction);
-        }
+	ConfigureModel(
+		inputLayerNodes = 1,
+		hiddenLayerNodes = [],
+		outputNodeAmounts = 1,
+		hiddenLayerActivationFunction = 'tanh',
+		outputLayerActivationFunction = 'sigmoid',
+	) {
+		if (hiddenLayerNodes.length === 0) {
+			this.AddLayerAfterInputLayer(
+				inputLayerNodes,
+				outputNodeAmounts,
+				outputLayerActivationFunction,
+			);
+		}
 
-        if (hiddenLayerNodes.length === 1){
-            this.AddLayerAfterInputLayer(inputLayerNodes, hiddenLayerNodes[0], hiddenLayerActivationFunction);
-            this.AddLayer(outputNodeAmounts, outputLayerActivationFunction);
-        }
+		if (hiddenLayerNodes.length === 1) {
+			this.AddLayerAfterInputLayer(
+				inputLayerNodes,
+				hiddenLayerNodes[0],
+				hiddenLayerActivationFunction,
+			);
+			this.AddLayer(outputNodeAmounts, outputLayerActivationFunction);
+		}
 
-        if (hiddenLayerNodes.length >= 2){
-            this.AddLayerAfterInputLayer(inputLayerNodes, hiddenLayerNodes[0], hiddenLayerActivationFunction);
-           
-            for(let i = 1; i < hiddenLayerNodes.length; i++){
-                this.AddLayer(hiddenLayerNodes[i], hiddenLayerActivationFunction);
-            }
+		if (hiddenLayerNodes.length >= 2) {
+			this.AddLayerAfterInputLayer(
+				inputLayerNodes,
+				hiddenLayerNodes[0],
+				hiddenLayerActivationFunction,
+			);
 
-            this.AddLayer(outputNodeAmounts, outputLayerActivationFunction);
-        }
+			for (let i = 1; i < hiddenLayerNodes.length; i++) {
+				this.AddLayer(
+					hiddenLayerNodes[i],
+					hiddenLayerActivationFunction,
+				);
+			}
 
-        console.log(`Configuration for ${this.GetName()} complete`);
-    }
+			this.AddLayer(outputNodeAmounts, outputLayerActivationFunction);
+		}
 
-    GetSummary(){
-        console.log(`Name: ${this.GetName()}`);
-        this.model.summary();
-    }
+		console.log(`Configuration for ${this.GetName()} complete`);
+	}
 
-    CompileMachine(lossFunction = 'meanSquaredError', icomingOptimizer = 'sgd'){
-        this.model.compile({
-            optimizer: icomingOptimizer,
-            loss: lossFunction
-        });
+	GetSummary() {
+		console.log(`Name: ${this.GetName()}`);
+		this.model.summary();
+	}
 
-        this.optimizer = icomingOptimizer;
+	CompileMachine(
+		lossFunction = 'meanSquaredError',
+		icomingOptimizer = 'sgd',
+	) {
+		this.model.compile({ optimizer: icomingOptimizer, loss: lossFunction });
 
-        console.log(`Compilation for ${this.GetName()} is complete`)
-    }
+		this.optimizer = icomingOptimizer;
 
-    SetActivationFunction(incomingActivationFunction = '', layerIndex = 0){
-        if (incomingActivationFunction === ''){
-            incomingActivationFunction = ActivationFunctionFunctions.GetRelu();
-        }
-        this.activationFunctions[layerIndex] = incomingActivationFunction
-        this.model.layers[layerIndex].activation = incomingActivationFunction;
-    }
+		console.log(`Compilation for ${this.GetName()} is complete`);
+	}
 
-    RandomizeAllLayersActivations(maxMutationChance = 1, isFinalLimited = true, isHiddenSame = true){
-        for(let i = 0; i < this.model.layers.length; i++){
-            let tempMaxMutationChance = maxMutationChance;
-            if (isHiddenSame && (i < this.model.layers.length - 1))
-                tempMaxMutationChance = 0
-            
-            this.RandomizeLayerActivation(i, tempMaxMutationChance, isFinalLimited);
-        }
-    }
+	SetActivationFunction(incomingActivationFunction = '', layerIndex = 0) {
+		if (incomingActivationFunction === '') {
+			incomingActivationFunction = ActivationFunctionFunctions.GetRelu();
+		}
+		this.activationFunctions[layerIndex] = incomingActivationFunction;
+		this.model.layers[layerIndex].activation = incomingActivationFunction;
+	}
 
-    RandomizeLayerActivation(index = 0, maxRandomizationChance = 1, isFinalLimited = true){
-        //Guard against index
-        if (index < 0 || index >= this.model.layers.length){
-            console.log(`Please choose an index inside the layer bounds before randomizing activation.`);
-            return;
-        }
-        
-        let incomingActivationFunction = '';
+	//Utilizes the first hidden activation function for default if isHiddenSame is true
+	RandomizeAllLayersActivations(
+		maxMutationChance = 1,
+		isFinalLimited = true,
+		isHiddenSame = true,
+	) {
+		let defaultHiddenActivationFunction = this.activationFunctions[0];
 
-        if (index === (this.model.layers.length - 1)){
-            incomingActivationFunction = 
-                ActivationFunctionFunctions.GetRandomActivationFunction(
-                    maxRandomizationChance,
-                    isFinalLimited,
-                    this.activationFunctions[index]
-                );
-        }
-        else{
-            incomingActivationFunction = 
-                ActivationFunctionFunctions.GetRandomActivationFunction(
-                    maxRandomizationChance,
-                    false,
-                    this.activationFunctions[index]
-                );
-        }
+		for (let i = 0; i < this.model.layers.length; i++) {
+			this.RandomizeLayerActivation(i, maxMutationChance, isFinalLimited);
+		}
 
-        this.SetActivationFunction(incomingActivationFunction, index);
-    }
+		if (isHiddenSame == false || this.model.layers.length < 2) {
+			return;
+		}
 
-    RandomizeWeights(maxWeightChangeVariation = 0.01, maxChanceWeightMutates = 0.01){
-        let currentBotWeightArray = this.model.getWeights()
-        let weights = WeightRandomizer.RandomizeWeights(currentBotWeightArray, maxWeightChangeVariation, maxChanceWeightMutates)
-        this.model.setWeights(weights)
-    }
+		//Beyond makes sure that a random set is same for all hidden layers
+		let alternativeHiddenActivation =
+			ActivationFunctionFunctions.GetRandomActivationFunction(
+				maxMutationChance,
+				false,
+				defaultHiddenActivationFunction,
+			);
 
-    async Fit(inputData, incomingOutputExpected, totalEpochAmount = 100, epochLogIteration = 10, batchSizeValue = 32){
-        await this.model.fit(
-            inputData, 
-            incomingOutputExpected,
-            {
-                epochs : totalEpochAmount,
-                callbacks: {
-                    onEpochEnd: async (epoch, logs) => {
-                        if (epoch % epochLogIteration === 0){
-                            console.log(`Epoch ${epoch}: error: ${logs.loss}`)
-                        }
-                    }
-                },
-                batchSize : batchSizeValue
-            }
-        )
+		for (let i = 0; i < this.model.layers.length - 1; i++) {
+			this.SetActivationFunction(alternativeHiddenActivation, i);
+		}
+	}
 
-        console.log(`Fitting for ${this.GetName()} is complete`);
-    }
+	RandomizeLayerActivation(
+		index = 0,
+		maxRandomizationChance = 1,
+		isFinalLimited = true,
+	) {
+		//Guard against index
+		if (index < 0 || index >= this.model.layers.length) {
+			console.log(
+				`Please choose an index inside the layer bounds before randomizing activation.`,
+			);
+			return;
+		}
 
-    GetName(){
-        return this.model.name;
-    }
+		let incomingActivationFunction = '';
 
-    predict(incomingData){
-        let result = this.model.predict(incomingData);
-        console.log(`Preidction for ${this.GetName()} is complete`)
-        return result;
-    }
+		if (index === this.model.layers.length - 1) {
+			incomingActivationFunction =
+				ActivationFunctionFunctions.GetRandomActivationFunction(
+					maxRandomizationChance,
+					isFinalLimited,
+					this.activationFunctions[index],
+				);
+		} else {
+			incomingActivationFunction =
+				ActivationFunctionFunctions.GetRandomActivationFunction(
+					maxRandomizationChance,
+					false,
+					this.activationFunctions[index],
+				);
+		}
 
-    LogAccuracy(incomingPredictedLabels, actualLabels){
-        this.lastRecordedAccuracy = DataComparer.CopmareLabelsStringReturnFloat(incomingPredictedLabels, actualLabels)
-        console.log(this.lastRecordedAccuracy)
-        return this.lastRecordedAccuracy;
-    }
+		this.SetActivationFunction(incomingActivationFunction, index);
+	}
 
-    LogPredict(incomingPredictedLabels, actualLabels, possibleOptions, predictionTensor ){
-        let resultContent = DataComparer.CompareLabelsReturnString(incomingPredictedLabels, actualLabels);
+	RandomizeWeights(
+		maxWeightChangeVariation = 0.01,
+		maxChanceWeightMutates = 0.01,
+	) {
+		let currentBotWeightArray = this.model.getWeights();
+		let weights = WeightRandomizer.RandomizeWeights(
+			currentBotWeightArray,
+			maxWeightChangeVariation,
+			maxChanceWeightMutates,
+		);
+		this.model.setWeights(weights);
+	}
 
-        this.LogAccuracy(incomingPredictedLabels, actualLabels)
+	async Fit(
+		inputData,
+		incomingOutputExpected,
+		totalEpochAmount = 100,
+		epochLogIteration = 10,
+		batchSizeValue = 32,
+	) {
+		await this.model.fit(inputData, incomingOutputExpected, {
+			epochs: totalEpochAmount,
+			callbacks: {
+				onEpochEnd: async (epoch, logs) => {
+					if (epoch % epochLogIteration === 0) {
+						console.log(`Epoch ${epoch}: error: ${logs.loss}`);
+					}
+				},
+			},
+			batchSize: batchSizeValue,
+		});
 
-        resultContent += `\nRecorded ${new Date().toLocaleString()}`
+		console.log(`Fitting for ${this.GetName()} is complete`);
+	}
 
-        resultContent += `\n\n\nPrediction tensor`;
-        resultContent += `\n\n${predictionTensor.toString()}`;
+	GetName() {
+		return this.model.name;
+	}
 
-        LogHandler.SaveAccuracyLog(this.GetName(), resultContent);
-    }
+	predict(incomingData) {
+		let result = this.model.predict(incomingData);
+		console.log(`Preidction for ${this.GetName()} is complete`);
+		return result;
+	}
 
-    async SaveModel(){
+	LogAccuracy(incomingPredictedLabels, actualLabels) {
+		this.lastRecordedAccuracy = DataComparer.CopmareLabelsStringReturnFloat(
+			incomingPredictedLabels,
+			actualLabels,
+		);
+		console.log(this.lastRecordedAccuracy);
+		return this.lastRecordedAccuracy;
+	}
 
-        
-        ModelSaver.SaveModel(this);
-    }
+	LogPredict(
+		incomingPredictedLabels,
+		actualLabels,
+		possibleOptions,
+		predictionTensor,
+	) {
+		let resultContent = DataComparer.CompareLabelsReturnString(
+			incomingPredictedLabels,
+			actualLabels,
+		);
 
+		this.LogAccuracy(incomingPredictedLabels, actualLabels);
 
-    static LoadModel(incomingModelName = ""){
-        return ModelLoader.LoadModel(incomingModelName);
-        
-    }   
+		resultContent += `\nRecorded ${new Date().toLocaleString()}`;
 
-    async FitDataWithBatching(inputData, incomingOutputExpected, incomingPossibleOptions, totalEpochAmount = 100, epochLogIteration = 10, dataGroupAmount = 10){
-        let numberOfGroups = incomingOutputExpected.shape[0] / dataGroupAmount;
-        let remainder = Math.floor(incomingOutputExpected.shape[0] % dataGroupAmount);
-        let cutoffPoint = incomingOutputExpected.shape[0] - remainder;
+		resultContent += `\n\n\nPrediction tensor`;
+		resultContent += `\n\n${predictionTensor.toString()}`;
 
-        //Prepare the data by shaving remainder
-        inputData.shape[0] -= remainder;        
-        incomingOutputExpected.shape[0] -= remainder;
+		LogHandler.SaveAccuracyLog(this.GetName(), resultContent);
+	}
 
-        let splitInputData = tf.split(inputData, numberOfGroups );
-        let splitIncomingOutputExpected = tf.split(incomingOutputExpected, numberOfGroups);
-        
+	async SaveModel() {
+		ModelSaver.SaveModel(this);
+	}
 
-        for(let i = 0; i < numberOfGroups; i++){
-            await this.Fit(
-                splitInputData[i],
-                splitIncomingOutputExpected[i],
-                totalEpochAmount,
-                epochLogIteration);
+	static LoadModel(incomingModelName = '') {
+		return ModelLoader.LoadModel(incomingModelName);
+	}
 
-            console.log(`epoch set ${i} of ${numberOfGroups}`)
-        }
-        console.log(`Data batching training completed`)
-    }
+	async FitDataWithBatching(
+		inputData,
+		incomingOutputExpected,
+		incomingPossibleOptions,
+		totalEpochAmount = 100,
+		epochLogIteration = 10,
+		dataGroupAmount = 10,
+	) {
+		let numberOfGroups = incomingOutputExpected.shape[0] / dataGroupAmount;
+		let remainder = Math.floor(
+			incomingOutputExpected.shape[0] % dataGroupAmount,
+		);
+		let cutoffPoint = incomingOutputExpected.shape[0] - remainder;
 
-    ToJSON(){
-        let dataHolder = new ModelDataHolder();
-        dataHolder.SetModelName(this.model);
-        dataHolder.SetActivationFunctions(this.activationFunctions);
-        dataHolder.SetWeightsAsArray(this.model);
-        dataHolder.SetBiasAsArray(this.model);
-        dataHolder.SetInputNodesAmount(this.model);
-        dataHolder.SetOutputNodesAmount(this.model);
-        dataHolder.SetLossFunction(this.model);
-        dataHolder.SetOptimizerFunction(this.optimizer);
+		//Prepare the data by shaving remainder
+		inputData.shape[0] -= remainder;
+		incomingOutputExpected.shape[0] -= remainder;
 
-        return JSON.stringify(dataHolder);
-    }
+		let splitInputData = tf.split(inputData, numberOfGroups);
+		let splitIncomingOutputExpected = tf.split(
+			incomingOutputExpected,
+			numberOfGroups,
+		);
 
-    static FromJSON(incomingJSON){
-        let dataHolder = new ModelDataHolder();
-        dataHolder.JSONSetModelName(incomingJSON);
-        dataHolder.JSONSetActivationFunctions(incomingJSON);
-        dataHolder.JSONSetWeightsAsArray(incomingJSON)
-        dataHolder.JSONSetBiasAsArray(incomingJSON);
-        dataHolder.JSONSetInputNodesAmount(incomingJSON);
-        dataHolder.JSONSetOutputNodesAmount(incomingJSON);
-        dataHolder.JSONSetLossFunction(incomingJSON);
-        dataHolder.JSONSetOptimizerFunction(incomingJSON);
+		for (let i = 0; i < numberOfGroups; i++) {
+			await this.Fit(
+				splitInputData[i],
+				splitIncomingOutputExpected[i],
+				totalEpochAmount,
+				epochLogIteration,
+			);
 
-        let hiddenLayersNodes = []
+			console.log(`epoch set ${i} of ${numberOfGroups}`);
+		}
+		console.log(`Data batching training completed`);
+	}
 
-        for(let i = 1; i < dataHolder.weights.length; i++){
-            let tempWeightsLength = dataHolder.weights[i].length;
-            let tempBiasLength = dataHolder.biases[i].length;
-            hiddenLayersNodes.push(tempWeightsLength / tempBiasLength);
-        }
+	ToJSON() {
+		let dataHolder = new ModelDataHolder();
+		dataHolder.SetModelName(this.model);
+		dataHolder.SetActivationFunctions(this.activationFunctions);
+		dataHolder.SetWeightsAsArray(this.model);
+		dataHolder.SetBiasAsArray(this.model);
+		dataHolder.SetInputNodesAmount(this.model);
+		dataHolder.SetOutputNodesAmount(this.model);
+		dataHolder.SetLossFunction(this.model);
+		dataHolder.SetOptimizerFunction(this.optimizer);
 
-        let newModel = new ModelClass(dataHolder.name);
+		return JSON.stringify(dataHolder);
+	}
 
-        newModel.ConfigureModel(
-            dataHolder.inputNodesAmount,
-            hiddenLayersNodes,
-            dataHolder.outputNodesAmount,
-            dataHolder.activationFunctions[0],
-            dataHolder.activationFunctions[dataHolder.activationFunctions.length - 1]
-        );
+	static FromJSON(incomingJSON) {
+		let dataHolder = new ModelDataHolder();
+		dataHolder.JSONSetModelName(incomingJSON);
+		dataHolder.JSONSetActivationFunctions(incomingJSON);
+		dataHolder.JSONSetWeightsAsArray(incomingJSON);
+		dataHolder.JSONSetBiasAsArray(incomingJSON);
+		dataHolder.JSONSetInputNodesAmount(incomingJSON);
+		dataHolder.JSONSetOutputNodesAmount(incomingJSON);
+		dataHolder.JSONSetLossFunction(incomingJSON);
+		dataHolder.JSONSetOptimizerFunction(incomingJSON);
 
-        //Add weights to the layers
-        for(let i = 0; i < newModel.model.layers.length; i++){
-            //Weights Preparation
+		let hiddenLayersNodes = [];
 
-            //#region TODO: Make sure these dimentions match and doesn't have a remainder
-            let tempWeightXDimention = Math.floor(dataHolder.weights[i].length)/(dataHolder.biases[i].length);
-            let tempWeightYDimention = dataHolder.biases[i].length;
+		for (let i = 1; i < dataHolder.weights.length; i++) {
+			let tempWeightsLength = dataHolder.weights[i].length;
+			let tempBiasLength = dataHolder.biases[i].length;
+			hiddenLayersNodes.push(tempWeightsLength / tempBiasLength);
+		}
 
-            let tempWeights = MathFunctions.TurnArrayIntoMatrix(dataHolder.weights[i], tempWeightXDimention, tempWeightYDimention);
-            let tensorTempWeights = tf.tensor(tempWeights, [tempWeights.length, tempWeights[i].length]);
-            // //#endregion
+		let newModel = new ModelClass(dataHolder.name);
 
-            //Bias Preparation
-            let testBiases = dataHolder.biases[i];
-            let tensorTempBiases = tf.tensor(testBiases);
+		newModel.ConfigureModel(
+			dataHolder.inputNodesAmount,
+			hiddenLayersNodes,
+			dataHolder.outputNodesAmount,
+			dataHolder.activationFunctions[0],
+			dataHolder.activationFunctions[
+				dataHolder.activationFunctions.length - 1
+			],
+		);
 
-            //Set weights and biases into layer
-            newModel.model.layers[i].weights[0].shape = [tempWeightXDimention, tempWeightYDimention];
-            newModel.model.layers[i].weights[1].shape = [tempWeightYDimention]
+		//Add weights to the layers
+		for (let i = 0; i < newModel.model.layers.length; i++) {
+			//Weights Preparation
 
-            newModel.model.layers[i].setWeights([tensorTempWeights, tensorTempBiases]);
+			//#region TODO: Make sure these dimentions match and doesn't have a remainder
+			let tempWeightXDimention =
+				Math.floor(dataHolder.weights[i].length) /
+				dataHolder.biases[i].length;
+			let tempWeightYDimention = dataHolder.biases[i].length;
 
-        }
+			let tempWeights = MathFunctions.TurnArrayIntoMatrix(
+				dataHolder.weights[i],
+				tempWeightXDimention,
+				tempWeightYDimention,
+			);
+			let tensorTempWeights = tf.tensor(tempWeights, [
+				tempWeights.length,
+				tempWeights[i].length,
+			]);
+			// //#endregion
 
-        newModel.CompileMachine(dataHolder.lossFunction, dataHolder.optimizerFunction);
+			//Bias Preparation
+			let testBiases = dataHolder.biases[i];
+			let tensorTempBiases = tf.tensor(testBiases);
 
-        newModel.lastRecordedAccuracy = 0.0;
+			//Set weights and biases into layer
+			newModel.model.layers[i].weights[0].shape = [
+				tempWeightXDimention,
+				tempWeightYDimention,
+			];
+			newModel.model.layers[i].weights[1].shape = [tempWeightYDimention];
 
-        console.log(`Loaded ${newModel.GetName()} Successfully`);
-        return newModel;
-    }
+			newModel.model.layers[i].setWeights([
+				tensorTempWeights,
+				tensorTempBiases,
+			]);
+		}
+
+		newModel.CompileMachine(
+			dataHolder.lossFunction,
+			dataHolder.optimizerFunction,
+		);
+
+		newModel.lastRecordedAccuracy = 0.0;
+
+		console.log(`Loaded ${newModel.GetName()} Successfully`);
+		return newModel;
+	}
 }
 
-class ModelDataHolder{
-    constructor(name, activationFunctions, weights, biases, inputNodesAmount, outputNodesAmount, lossFunction, optimizerFunction){
-        this.name = name;
-        this.activationFunctions = activationFunctions;
-        this.weights = weights;
-        this.biases = biases;
-        this.inputNodesAmount = inputNodesAmount;
-        this.outputNodesAmount = outputNodesAmount;
-        this.lossFunction = lossFunction;
-        this.optimizerFunction = optimizerFunction;
-    }
+class ModelDataHolder {
+	constructor(
+		name,
+		activationFunctions,
+		weights,
+		biases,
+		inputNodesAmount,
+		outputNodesAmount,
+		lossFunction,
+		optimizerFunction,
+	) {
+		this.name = name;
+		this.activationFunctions = activationFunctions;
+		this.weights = weights;
+		this.biases = biases;
+		this.inputNodesAmount = inputNodesAmount;
+		this.outputNodesAmount = outputNodesAmount;
+		this.lossFunction = lossFunction;
+		this.optimizerFunction = optimizerFunction;
+	}
 
-    //#region Setting Methods
-    SetModelName(incomingModel){
-        this.name = incomingModel.name;
-    }
+	//#region Setting Methods
+	SetModelName(incomingModel) {
+		this.name = incomingModel.name;
+	}
 
-    SetActivationFunctions(activationFunctions = []){
-        this.activationFunctions = activationFunctions;
-    }
+	SetActivationFunctions(activationFunctions = []) {
+		this.activationFunctions = activationFunctions;
+	}
 
-    SetWeightsAsArray(incomingModel){
-        let result = []
-        let layersAmount = incomingModel.layers.length;
-        for (let i = 0; i < layersAmount; i++) {
-            result.push(incomingModel.layers[i].getWeights()[0].dataSync());;
-        }
-        this.weights = result;
-    }
+	SetWeightsAsArray(incomingModel) {
+		let result = [];
+		let layersAmount = incomingModel.layers.length;
+		for (let i = 0; i < layersAmount; i++) {
+			result.push(incomingModel.layers[i].getWeights()[0].dataSync());
+		}
+		this.weights = result;
+	}
 
-    SetBiasAsArray(incomingModel){
-        let result = []
-        let layersAmount = incomingModel.layers.length;
-        for (let i = 0; i < layersAmount; i++) {
-            result.push(incomingModel.layers[i].getWeights()[1].dataSync());
-        }
-        this.biases = result;
-    }
+	SetBiasAsArray(incomingModel) {
+		let result = [];
+		let layersAmount = incomingModel.layers.length;
+		for (let i = 0; i < layersAmount; i++) {
+			result.push(incomingModel.layers[i].getWeights()[1].dataSync());
+		}
+		this.biases = result;
+	}
 
-    SetInputNodesAmount(incomingModel){
-        let inpuytLayerWeightsLength = incomingModel.layers[0].getWeights()[0].dataSync().length;
-        let inputLayerBiasLength = incomingModel.layers[0].getWeights()[1].dataSync().length;
-        let result = inpuytLayerWeightsLength / inputLayerBiasLength;
-        this.inputNodesAmount = result;
-    }
+	SetInputNodesAmount(incomingModel) {
+		let inpuytLayerWeightsLength = incomingModel.layers[0]
+			.getWeights()[0]
+			.dataSync().length;
+		let inputLayerBiasLength = incomingModel.layers[0]
+			.getWeights()[1]
+			.dataSync().length;
+		let result = inpuytLayerWeightsLength / inputLayerBiasLength;
+		this.inputNodesAmount = result;
+	}
 
-    SetOutputNodesAmount(incomingModel){
-        let lengthOfLayers = incomingModel.layers.length;
-        let result = incomingModel.layers[lengthOfLayers - 1].getWeights()[1].dataSync().length;
-        this.outputNodesAmount = result
-    }
+	SetOutputNodesAmount(incomingModel) {
+		let lengthOfLayers = incomingModel.layers.length;
+		let result = incomingModel.layers[lengthOfLayers - 1]
+			.getWeights()[1]
+			.dataSync().length;
+		this.outputNodesAmount = result;
+	}
 
-    SetLossFunction(incomingModel){
-        this.lossFunction = incomingModel.loss;
-    }
+	SetLossFunction(incomingModel) {
+		this.lossFunction = incomingModel.loss;
+	}
 
-    SetOptimizerFunction(incomingOptimizer){
-        this.optimizerFunction = incomingOptimizer;
-    }
-    //#endregion
+	SetOptimizerFunction(incomingOptimizer) {
+		this.optimizerFunction = incomingOptimizer;
+	}
+	//#endregion
 
-    //#region Setting JSON Methods
-    JSONSetModelName(incomingJSON){
-        let result = JSON.parse(incomingJSON).name;
-        this.name = result;
-    }
+	//#region Setting JSON Methods
+	JSONSetModelName(incomingJSON) {
+		let result = JSON.parse(incomingJSON).name;
+		this.name = result;
+	}
 
-    JSONSetActivationFunctions(incomingJSON){
-        let result = JSON.parse(incomingJSON).activationFunctions;
-        this.activationFunctions = result;
-    }
+	JSONSetActivationFunctions(incomingJSON) {
+		let result = JSON.parse(incomingJSON).activationFunctions;
+		this.activationFunctions = result;
+	}
 
-    JSONSetWeightsAsArray(incomingJSON){
-        let result = [];
-        let data = JSON.parse(incomingJSON).weights;
-        for(let i = 0; i < data.length; i++){
-            result.push(Object.values(data[i]))
-        }
-        this.weights = result;
-    }
+	JSONSetWeightsAsArray(incomingJSON) {
+		let result = [];
+		let data = JSON.parse(incomingJSON).weights;
+		for (let i = 0; i < data.length; i++) {
+			result.push(Object.values(data[i]));
+		}
+		this.weights = result;
+	}
 
-    JSONSetBiasAsArray(incomingJSON){
-        let result = [];
-        let data = JSON.parse(incomingJSON).biases;
-        for(let i = 0; i < data.length; i++){
-            result.push(Object.values(data[i]))
-        }
-        this.biases = result;
-    }
+	JSONSetBiasAsArray(incomingJSON) {
+		let result = [];
+		let data = JSON.parse(incomingJSON).biases;
+		for (let i = 0; i < data.length; i++) {
+			result.push(Object.values(data[i]));
+		}
+		this.biases = result;
+	}
 
-    JSONSetInputNodesAmount(incomingJSON){
-        let result = JSON.parse(incomingJSON).inputNodesAmount
-        this.inputNodesAmount = result;
-    }
+	JSONSetInputNodesAmount(incomingJSON) {
+		let result = JSON.parse(incomingJSON).inputNodesAmount;
+		this.inputNodesAmount = result;
+	}
 
-    JSONSetOutputNodesAmount(incomingJSON){
-        let result = JSON.parse(incomingJSON).outputNodesAmount
-        this.outputNodesAmount = result;
-    }
+	JSONSetOutputNodesAmount(incomingJSON) {
+		let result = JSON.parse(incomingJSON).outputNodesAmount;
+		this.outputNodesAmount = result;
+	}
 
-    JSONSetLossFunction(incomingJSON){
-        let result = JSON.parse(incomingJSON).lossFunction;
-        this.lossFunction = result;
-    }
+	JSONSetLossFunction(incomingJSON) {
+		let result = JSON.parse(incomingJSON).lossFunction;
+		this.lossFunction = result;
+	}
 
-    JSONSetOptimizerFunction(incomingJSON){
-        let result = JSON.parse(incomingJSON).optimizerFunction;
-        this.optimizerFunction = result;
-    }
-    //#endregion
-
+	JSONSetOptimizerFunction(incomingJSON) {
+		let result = JSON.parse(incomingJSON).optimizerFunction;
+		this.optimizerFunction = result;
+	}
+	//#endregion
 }
 
-class ModelSaver{
-    //The reason for repeditive names is to make future optimization for not requiring variables easier to replace
-    static SaveModel(incomingModelClass){
-        let jsonDataHolder = incomingModelClass.ToJSON()
+class ModelSaver {
+	//The reason for repeditive names is to make future optimization for not requiring variables easier to replace
+	static SaveModel(incomingModelClass) {
+		let jsonDataHolder = incomingModelClass.ToJSON();
 
-        ModelLoaderHandler.SaveModel(incomingModelClass.GetName(), JSON.stringify(modelDataHolder))
-    }
+		ModelLoaderHandler.SaveModel(
+			incomingModelClass.GetName(),
+			JSON.stringify(modelDataHolder),
+		);
+	}
 }
 
-class ModelLoader{
-    //The reason for repeditive names is to make future optimization for not requiring variables easier to replace
-    static LoadModel(incomingModelName = ""){
-        //Guard against no model existing
-        if (!IsModelSaved(incomingModelName)){
-            console.log(`Couldn't recieve model. Loading empty model with name ${incomingModelName}`)
-            return new ModelClass(incomingModelName);
-        }
-        
+class ModelLoader {
+	//The reason for repeditive names is to make future optimization for not requiring variables easier to replace
+	static LoadModel(incomingModelName = '') {
+		//Guard against no model existing
+		if (!IsModelSaved(incomingModelName)) {
+			console.log(
+				`Couldn't recieve model. Loading empty model with name ${incomingModelName}`,
+			);
+			return new ModelClass(incomingModelName);
+		}
 
-        let dataJSON = ModelLoaderHandler.GetModelData(incomingModelName);
+		let dataJSON = ModelLoaderHandler.GetModelData(incomingModelName);
 
-        let newModel = ModelClass.FromJSON(dataJSON);
+		let newModel = ModelClass.FromJSON(dataJSON);
 
-        return newModel;
-    }
+		return newModel;
+	}
 }
 
-export function IsModelSaved(incomingName){
-    return ModelLoaderHandler.IsBotSaved(incomingName);
+export function IsModelSaved(incomingName) {
+	return ModelLoaderHandler.IsBotSaved(incomingName);
 }
 
-export class HiddenNodeRecommender{
-    static GetHiddenNodesBySimpleMethod(numberOfInputNodes = 1.0, numberOfOutputNodes = 1.0){
-        return Math.floor((numberOfInputNodes ** numberOfOutputNodes) ** 0.5);
-    }
+export class HiddenNodeRecommender {
+	static GetHiddenNodesBySimpleMethod(
+		numberOfInputNodes = 1.0,
+		numberOfOutputNodes = 1.0,
+	) {
+		return Math.floor((numberOfInputNodes ** numberOfOutputNodes) ** 0.5);
+	}
 
-    static GetHiddenNodesByNonSimpleAmount(
-        numberOfInputNodes = 1, 
-        numberOfOutputNodes = 1, 
-        numberOfSamples = 1, 
-        arbitraryAlpha = 2){
-        let numerator = numberOfSamples;
-        let denominator = arbitraryAlpha * (numberOfInputNodes + numberOfOutputNodes);
+	static GetHiddenNodesByNonSimpleAmount(
+		numberOfInputNodes = 1,
+		numberOfOutputNodes = 1,
+		numberOfSamples = 1,
+		arbitraryAlpha = 2,
+	) {
+		let numerator = numberOfSamples;
+		let denominator =
+			arbitraryAlpha * (numberOfInputNodes + numberOfOutputNodes);
 
-        let result = numerator / denominator;
-        return Math.floor(result);
-    }
+		let result = numerator / denominator;
+		return Math.floor(result);
+	}
 
-    static SetNumberOfHiddenNodesByLayer(totalNumberOfHiddenNodes = 1, desiredNumberOfLayers = 1){
-        let hiddenNodesByLayer = [];
-        let remainingHiddenNodes = Math.floor(totalNumberOfHiddenNodes);
+	static SetNumberOfHiddenNodesByLayer(
+		totalNumberOfHiddenNodes = 1,
+		desiredNumberOfLayers = 1,
+	) {
+		let hiddenNodesByLayer = [];
+		let remainingHiddenNodes = Math.floor(totalNumberOfHiddenNodes);
 
-        if (desiredNumberOfLayers === 0){
-            return [];
-        }
+		if (desiredNumberOfLayers === 0) {
+			return [];
+		}
 
-        if (desiredNumberOfLayers === 1){
-            return [totalNumberOfHiddenNodes];
-        }
+		if (desiredNumberOfLayers === 1) {
+			return [totalNumberOfHiddenNodes];
+		}
 
-        for(let i = 0; i < desiredNumberOfLayers; i++){
-            let layerNodeAmount = Math.floor(remainingHiddenNodes / desiredNumberOfLayers);
-            remainingHiddenNodes -= layerNodeAmount;
-            hiddenNodesByLayer.push(remainingHiddenNodes);
-        }
+		for (let i = 0; i < desiredNumberOfLayers; i++) {
+			let layerNodeAmount = Math.floor(
+				remainingHiddenNodes / desiredNumberOfLayers,
+			);
+			remainingHiddenNodes -= layerNodeAmount;
+			hiddenNodesByLayer.push(remainingHiddenNodes);
+		}
 
-        return hiddenNodesByLayer;
-    }
+		return hiddenNodesByLayer;
+	}
 }
