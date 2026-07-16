@@ -41,7 +41,29 @@ export function GetSoftMax(){
     return 'softmax'
 }
 
-export function GetRandomActivationFunction(isFinal = false){
+export function GetRandomActivationFunction(maxChanceToRandomize = 1.0 ,isFinal = false, defaultActivation = ''){
+    //Determine if activation function even changes
+    let diceRoll = Math.random()
+
+    //Add chance to randomize guards
+    if (maxChanceToRandomize < 0 || maxChanceToRandomize > 1){
+        console.log(`Please put max change to randomize between range [0, 1]`);
+    }
+
+    //Guard against invalid activation functions
+    if (defaultActivation === ''){
+        defaultActivation === GetRelu();
+    }
+    else if (!(hiddenActivationFunctions.includes(defaultActivation) || finalActivationFunctions.includes(defaultActivation))){
+        console.log('Please give a valid default activation function');
+    }
+
+    if (!(diceRoll < maxChanceToRandomize)){
+        return defaultActivation;
+    }
+
+
+
     if (isFinal === false){
         return hiddenActivationFunctions[MathExtensions.GetRandomInt(0, hiddenActivationFunctions.length)];
     }

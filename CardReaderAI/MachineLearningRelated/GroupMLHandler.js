@@ -3,7 +3,10 @@ import * as DataComparer from "../DataRelated/DataComparer.js";
 import * as WeightRandomizer from './WeightRandomizer.js';
 import * as MathExtension from '../MathRelated/MathFunctions.js'
 import * as ActivationFunctions from './ActivationFunctions.js'
+import { clone } from '@tensorflow/tfjs';
 
+
+//Note that highest value accuracy bots should be at the right of array while lowest are beginning
 export class GroupMachineClass{
 
 
@@ -83,47 +86,31 @@ export class GroupMachineClass{
         let currentBotWeightArray = this.bots[index].model.getWeights()
         let weights = WeightRandomizer.RandomizeWeights(currentBotWeightArray, maxWeightChangeVariation, maxChanceWeightMutates)
         this.bots[index].model.setWeights(weights)
+
+        this.bots[index].RandomizeWeights(maxWeightChangeVariation, maxChanceWeightMutates);
     }
 
-    RandomizeWeightsAndBiasesAll(maxWeightChangeVariation = 0.01, maxChanceWeightMutates = 0.01){
+    RandomizeWeightsAndBiasesAll(maxWeightChangeVariation = 0.01, mutationChance = 0.01){
         for(let i = 0; i < this.bots.length; i++){
-            this.RandomizeWeightsForOneModel(maxWeightChangeVariation, maxChanceWeightMutates, i);
+            this.RandomizeWeightsForOneModel(maxWeightChangeVariation, mutationChance, i);
         }
     }
 
     //Bots may need recompilation afterwards
-    RandomizeActivationsAll(isRandomizeHidden = false, isRandomizeFinal = false, isHiddenSame = true){
+    RandomizeActivationsAll(mutationChance = 1, isFinalLimited = true, isHiddenSame = true){
         for(let i = 0; i < this.bots.length; i++){
-            this.RandomizeActivations(i, isRandomizeHidden, isRandomizeFinal, isHiddenSame)
+            this.RandomizeActivations(i, mutationChance, isFinalLimited, isHiddenSame)
         }
     }
 
-    //Bots may need recompilation afterwards
-    RandomizeActivations(index = 0, isRandomizeHidden = false, isRandomizeFinal = false, isHiddenSame = true){
-        let botLayerLengthAmmount = this.bots[index].model.layers.length;
-        let hiddenLayerAmmount = botLayerLengthAmmount - 1;
-        let finalLayerAmount = botLayerLengthAmmount === 0? 0 : 1;
-
-        if (isRandomizeHidden === true && hiddenLayerAmmount >= 1){
-
-            let prepickedActivation = ActivationFunctions.GetRandomActivationFunction(false);
-
-            for(let i = 0; i < hiddenLayerAmmount; i++){
-                let tempActivationFunction;
-
-                if (isHiddenSame)
-                    tempActivationFunction = prepickedActivation;
-                else
-                    tempActivationFunction = ActivationFunctions.GetRandomActivationFunction(false)
-
-                this.bots[index].model.layers[i].activation = tempActivationFunction;
-            }
+    
+    RandomizeActivations(botIndex = 0, maxRandomizationChance = 1 , isFinalLimited = true, isHiddenSame = true){
+        //Guard against bot index bounds
+        if (botIndex < 0 || botIndex > this.bots.length){
+            console.log('Please enter in a valid bot index');
         }
 
-        if (isRandomizeFinal === true && finalLayerAmount > 0){
-            this.bots[index].model.layers[botLayerLengthAmmount - 1].activation = 
-                 ActivationFunctions.GetRandomActivationFunction(true);
-        }
+        this.bots[botIndex].RandomizeAllLayersActivations(maxRandomizationChance, isFinalLimited, isHiddenSame)
     }
 
     //Assumed highest is at end of array
@@ -163,6 +150,65 @@ export class GroupMachineClass{
         }
 
         console.log(this.bots.length)
+    }
+
+    // CrossOverOneBot(indexOfOneToCrossOver, ){
+    //     let 
+    // }
+
+    //Cloning with a little bit of mutation
+    MutateToFill(maxWeightChangeVariation = 0.01, maxChanceWeightMutates = 0.01){
+        let limitToFill = this.amountOfBots;
+        let botLength = this.bots.length;
+        let lowerLimit = 0;
+
+        while (botLength > limitToFill && isDeleteRandomIfOver === true){
+            this.DeleteHalfRandom()
+        }
+
+        if (botLength <= lowerLimit){
+            //Push a bot in to make a thing of 1, then fill
+            this.bots.push(new MLHandler.ModelClass(this.GetName()))
+        }
+
+        this.CloneRandomToFill();
+        this.RandomizeWeightsAndBiasesAll(maxWeightChangeVariation, maxChanceWeightMutates);
+    }
+
+    CloneRandomToFill(isDeleteRandomIfOver = false){
+        let limitToFill = this.amountOfBots;
+        let botLength = this.bots.length;
+        let lowerLimit = 0;
+
+        while (botLength > limitToFill && isDeleteRandomIfOver === true){
+            this.DeleteHalfRandom()
+        }
+
+        if (botLength <= lowerLimit){
+            //Push a bot in to make a thing of 1, then fill
+            this.bots.push(new MLHandler.ModelClass(this.GetName()))
+        }
+
+        //Figure out which clones to clone
+        let difference = limitToFill - botLength;
+        let botsToClone = []
+        for(let i = 0; i < difference; i++){
+            botsToClone.push(MathExtension.GetRandomInt(0, this.bots.length));
+        }
+        
+        //Generate the clones
+        for(let i = 0; i < botsToClone.length; i++){
+            let clonedBot = this.CloneBot(botsToClone[i]);
+            this.bots.splice(0, 0, clonedBot)
+        }
+
+
+    }
+
+    CloneBot(cloneIndex = 0){
+        //Create clone bot
+        let cloneBot = MLHandler.ModelClass.FromJSON(this.bots[cloneIndex].ToJSON())
+        return cloneBot;
     }
 
     PredictAll(incomingData){
@@ -207,7 +253,9 @@ export class GroupMachineClass{
             else return 0;
         })
         console.log(`Accuracies recorded and bots sorted on ${this.GetName()}`)
-    } 
+    }
+
+
 
     GetName(){
         return this.groupName;
