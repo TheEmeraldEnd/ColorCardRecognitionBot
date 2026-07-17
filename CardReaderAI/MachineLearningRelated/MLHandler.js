@@ -395,6 +395,15 @@ export class ModelClass {
 		console.log(`Loaded ${newModel.GetName()} Successfully`);
 		return newModel;
 	}
+
+	CrossOverWithBot(incomingBot, mutationChance = 0.5) {
+		//TODO: Need to figure out how to physically swap the weights
+		for (let i = 0; i < this.model.layers.length; i++) {
+			let tempArrayOfWeights = this.model.layers[i]
+				.getWeights()[0]
+				.dataSync();
+		}
+	}
 }
 
 class ModelDataHolder {

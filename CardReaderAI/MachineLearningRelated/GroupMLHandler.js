@@ -218,15 +218,14 @@ export class GroupMachineClass {
 		bot1.GetSummary();
 		bot2.GetSummary();
 		let bot1JSON = bot1.ToJSON();
-		console.log(bot1JSON);
-
 		let bot2JSON = bot2.ToJSON();
-		console.log(bot2JSON);
 
 		let newCloneJSON = bot1.ToJSON();
-		console.log(newCloneJSON === bot1JSON);
 
-		console.log(newCloneJSON === bot1JSON);
+		let newClone = MLHandler.ModelClass.FromJSON(newCloneJSON);
+
+		//Swap the things
+		newClone.CrossOverWithBot(bot2);
 	}
 
 	//Cloning with a little bit of mutation

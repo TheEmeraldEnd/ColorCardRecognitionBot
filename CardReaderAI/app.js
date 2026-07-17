@@ -16,6 +16,8 @@ import * as MLGroupHandler from './MachineLearningRelated/GroupMLHandler.js';
 import * as WeightRandomizer from './MachineLearningRelated/WeightRandomizer.js';
 import * as ActivationFunctions from './MachineLearningRelated/ActivationFunctions.js';
 
+console.log('thing');
+
 let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
 let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(
 	trainingHistograms,
