@@ -164,10 +164,20 @@ for (let i = 0; i < predictionTensors.length; i++) {
 		),
 	);
 }
-
+console.log('thing')
 let actualLabels = formattedTrainingData.GetLabelsAsArray();
-botGroup.PredictAllAndSort(predictedLabelses, actualLabels);
 
-botGroup.CrossoverCloneOneBot(botGroup.bots[0], botGroup.bots[1]);
+for(let i = 0; i < botGroup.bots.length; i++){
+    botGroup.bots[i].SetAllWeights(i % 2)
+}
+
+//botGroup.PredictAllAndSort(predictedLabelses, actualLabels);
+//FIgure out where error came from
+console.log(botGroup.bots.length)
+botGroup.DeleteHalfRandom();
+console.log(botGroup.bots.length)
+botGroup.CrossoverToFill()
+console.log(botGroup.bots.length)
+
 
 //#endregion

@@ -119,6 +119,20 @@ export class ModelClass {
 		this.model.layers[layerIndex].activation = incomingActivationFunction;
 	}
 
+    SetAllWeights(incomingNumber = 0){
+        let tempWeights = this.model.getWeights();
+        for(let i = 0; i < tempWeights.length; i++){
+            let tempDataSyncArray = tempWeights[i].dataSync()
+            let tempShape = tempWeights[i].shape;
+            for(let x = 0; x < tempDataSyncArray.length; x++){
+                tempDataSyncArray[x] = incomingNumber;
+            }
+            tempWeights[i] = new tf.tensor(tempDataSyncArray, tempShape);
+        }
+
+        this.model.setWeights(tempWeights);
+    }
+
 	//Utilizes the first hidden activation function for default if isHiddenSame is true
 	RandomizeAllLayersActivations(
 		maxMutationChance = 1,
@@ -397,12 +411,26 @@ export class ModelClass {
 	}
 
 	CrossOverWithBot(incomingBot, mutationChance = 0.5) {
-		//TODO: Need to figure out how to physically swap the weights
-		for (let i = 0; i < this.model.layers.length; i++) {
-			let tempArrayOfWeights = this.model.layers[i]
-				.getWeights()[0]
-				.dataSync();
-		}
+        //Crossover the weights
+        let currentWeights = this.model.getWeights();
+        let incomingWeights = incomingBot.model.getWeights();
+
+
+		for(let i = 0; i < currentWeights.length; i++){
+            let currentWeightsArray = currentWeights[i].dataSync();
+            let incomingWeightsArray = incomingWeights[i].dataSync();
+
+            let tempShape = currentWeights[i].shape;
+
+            for(let j = 0; j < currentWeightsArray.length; j++){
+                if (Math.random() <= mutationChance){
+                    currentWeightsArray[j] = JSON.parse(JSON.stringify(incomingWeightsArray[j]));
+                }
+            }
+            currentWeights[i] = new tf.tensor(currentWeightsArray, tempShape); 
+        }
+
+        this.model.setWeights(currentWeights);
 	}
 }
 
