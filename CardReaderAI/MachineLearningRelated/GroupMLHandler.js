@@ -211,65 +211,67 @@ export class GroupMachineClass {
 		console.log(this.bots.length);
 	}
 
-	CrossoverToFill(isFillFromHighest = false, isMutateAfter = false, mutateVariance = 0.1, mutateChance = 0.1) {
-        //Check for 0-2 bots
-        if (this.bots.length === 0){
-            console.error(`There aren't any bots in ${this.GetName()}`);
-            return;
-        }
-
-        if (this.bots.length === 1){
-            this.MutateToFill(mutateVariance, mutateChance);
-            return;
-        }
-
-        //Find the difference
-        let diff = this.amountOfBots - this.bots.length;
-
-        //Make the pairs
-        let pairs = [];
-
-        for(let i = 0; i < diff; i++){
-            let bot1Number = MathExtension.GetRandomInt(0, this.bots.length);
-            let bot2Number = MathExtension.GetRandomInt(0, this.bots.length);
-            
-            pairs.push([bot1Number, bot2Number]);
-
-            console.log(`Bot1: ${pairs[i][0]} Bot2: ${pairs[i][1]}`)
-        }
-        
-        //Make the clones
-        let botsToClone = []
-        for(let i = 0; i < pairs.length; i++){
-            let bot1 = this.bots[pairs[i][0]]
-            let bot2 = this.bots[pairs[i][1]]
-            let newBot = this.CrossoverCloneOneBot(bot1, bot2);
-            botsToClone.push(newBot);
-        }
-
-        //Add clones into thing
-		for (let i = 0; i < botsToClone.length; i++) {
-			this.bots.splice(0, 0, clonedBot);
+	CrossoverToFill(
+		isFillFromHighest = false,
+		isMutateAfter = false,
+		mutateVariance = 0.1,
+		mutateChance = 0.1,
+	) {
+		//Check for 0-2 bots
+		if (this.bots.length === 0) {
+			console.error(`There aren't any bots in ${this.GetName()}`);
+			return;
 		}
 
-        if (isMutateAfter === true){
-            this.MutateToFill(mutateVariance, mutateChance);
-        }
+		if (this.bots.length === 1) {
+			this.MutateToFill(mutateVariance, mutateChance);
+			return;
+		}
 
-        
-    }
+		//Find the difference
+		let diff = this.amountOfBots - this.bots.length;
+
+		//Make the pairs
+		let pairs = [];
+
+		for (let i = 0; i < diff; i++) {
+			let bot1Number = MathExtension.GetRandomInt(0, this.bots.length);
+			let bot2Number = MathExtension.GetRandomInt(0, this.bots.length);
+
+			pairs.push([bot1Number, bot2Number]);
+
+			console.log(`Bot1: ${pairs[i][0]} Bot2: ${pairs[i][1]}`);
+		}
+
+		//Make the clones
+		let botsToClone = [];
+		for (let i = 0; i < pairs.length; i++) {
+			let bot1 = this.bots[pairs[i][0]];
+			let bot2 = this.bots[pairs[i][1]];
+			let newBot = this.CrossoverCloneOneBot(bot1, bot2);
+			botsToClone.push(newBot);
+		}
+
+		//Add clones into thing
+		for (let i = 0; i < botsToClone.length; i++) {
+			this.bots.splice(0, 0, botsToClone);
+		}
+
+		if (isMutateAfter === true) {
+			this.MutateToFill(mutateVariance, mutateChance);
+		}
+	}
 
 	//Needs work: Check weights on bots
 	CrossoverCloneOneBot(bot1, bot2) {
-        
 		let newCloneJSON = bot1.ToJSON();
-        
+
 		let newClone = MLHandler.ModelClass.FromJSON(newCloneJSON);
-        
+
 		//Swap the things
 		newClone.CrossOverWithBot(bot2);
 
-        return newClone;
+		return newClone;
 	}
 
 	//Cloning with a little bit of mutation

@@ -119,19 +119,19 @@ export class ModelClass {
 		this.model.layers[layerIndex].activation = incomingActivationFunction;
 	}
 
-    SetAllWeights(incomingNumber = 0){
-        let tempWeights = this.model.getWeights();
-        for(let i = 0; i < tempWeights.length; i++){
-            let tempDataSyncArray = tempWeights[i].dataSync()
-            let tempShape = tempWeights[i].shape;
-            for(let x = 0; x < tempDataSyncArray.length; x++){
-                tempDataSyncArray[x] = incomingNumber;
-            }
-            tempWeights[i] = new tf.tensor(tempDataSyncArray, tempShape);
-        }
+	SetAllWeights(incomingNumber = 0) {
+		let tempWeights = this.model.getWeights();
+		for (let i = 0; i < tempWeights.length; i++) {
+			let tempDataSyncArray = tempWeights[i].dataSync();
+			let tempShape = tempWeights[i].shape;
+			for (let x = 0; x < tempDataSyncArray.length; x++) {
+				tempDataSyncArray[x] = incomingNumber;
+			}
+			tempWeights[i] = new tf.tensor(tempDataSyncArray, tempShape);
+		}
 
-        this.model.setWeights(tempWeights);
-    }
+		this.model.setWeights(tempWeights);
+	}
 
 	//Utilizes the first hidden activation function for default if isHiddenSame is true
 	RandomizeAllLayersActivations(
@@ -411,26 +411,46 @@ export class ModelClass {
 	}
 
 	CrossOverWithBot(incomingBot, mutationChance = 0.5) {
-        //Crossover the weights
-        let currentWeights = this.model.getWeights();
-        let incomingWeights = incomingBot.model.getWeights();
+		//Crossover the weights
+		let currentWeights = this.model.getWeights();
+		let incomingWeights = incomingBot.model.getWeights();
 
+		for (let i = 0; i < currentWeights.length; i++) {
+			let currentWeightsArray = currentWeights[i].dataSync();
+			let incomingWeightsArray = incomingWeights[i].dataSync();
 
-		for(let i = 0; i < currentWeights.length; i++){
-            let currentWeightsArray = currentWeights[i].dataSync();
-            let incomingWeightsArray = incomingWeights[i].dataSync();
+			let tempShape = currentWeights[i].shape;
 
-            let tempShape = currentWeights[i].shape;
+			for (let j = 0; j < currentWeightsArray.length; j++) {
+				if (Math.random() <= mutationChance) {
+					currentWeightsArray[j] = JSON.parse(
+						JSON.stringify(incomingWeightsArray[j]),
+					);
+				}
+			}
+			currentWeights[i] = new tf.tensor(currentWeightsArray, tempShape);
+		}
 
-            for(let j = 0; j < currentWeightsArray.length; j++){
-                if (Math.random() <= mutationChance){
-                    currentWeightsArray[j] = JSON.parse(JSON.stringify(incomingWeightsArray[j]));
-                }
-            }
-            currentWeights[i] = new tf.tensor(currentWeightsArray, tempShape); 
-        }
+		this.model.setWeights(currentWeights);
 
-        this.model.setWeights(currentWeights);
+		//Check to switch activation functions
+
+		let firstActivationFunctions = this.activationFunctions;
+		let secondActivationFunctions = incomingBot.activationFunctions;
+
+		for (let i = 0; i < firstActivationFunctions.length; i++) {
+			let tempActivation = '';
+
+			let randomChance = Math.random();
+
+			if (randomChance <= mutationChance) {
+				tempActivation = secondActivationFunctions[i];
+			} else {
+				tempActivation = firstActivationFunctions[i];
+			}
+
+			this.SetActivationFunction(tempActivation, i);
+		}
 	}
 }
 
