@@ -173,9 +173,5 @@ for (let i = 0; i < botGroup.bots.length; i++) {
 
 //botGroup.PredictAllAndSort(predictedLabelses, actualLabels);
 //FIgure out where error came from
-console.log(botGroup.bots.length);
-botGroup.DeleteHalfRandom();
-console.log(botGroup.bots.length);
-botGroup.CrossoverToFill();
-console.log('Thing' + botGroup.bots.length);
+
 //#endregion

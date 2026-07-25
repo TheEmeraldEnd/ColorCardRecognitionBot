@@ -152,6 +152,13 @@ namespace DataPrepper.Console_Related
             {
                 Help();
             }
+            else if (incomingCommand == nameof(GetOptions).ToUpper())
+            {
+                NeutralComputerTalk("Getting options");
+                GetOptions();
+                GoodComputerTalk("Got the options! Do I get a cookie?");
+                GoodComputerTalk();
+            }
             else
             {
                 if (!_exitCommands.Contains(incomingCommand.ToUpper()))
@@ -184,15 +191,31 @@ namespace DataPrepper.Console_Related
 
         public static void GenerateTestHistograms()
         {
-            string[] paths = FileGrabbers.GetImageTestPathsAndNames();
+            string[] paths = FileGrabbers.GetImageTestPathsAndNamesAndExtension();
             string[] names = FileGrabbers.GetImageTestNames();
+            string[] options = FileGrabbers.GetOptions();
 
-            for(int i = 0; i < paths.Length; i++)
+            for (int i = 0; i < paths.Length; i++)
             {
                 Bitmap tempBitmap = new Bitmap(paths[i]);
-                string name = names[i];
+                string name = "";
+                foreach (var option in options)
+                {
+                    if (names[i].ToUpper().Contains(option.Replace(".png", "").ToUpper()))
+                        name = option;
+                }
+                name = name.Replace(".png", "");
 
                 HistogramConverter.ConvertAndSaveAllTestHistogram(tempBitmap, name);
+            }
+        }
+
+        public static void GetOptions()
+        {
+            string[] options = FileGrabbers.GetOptions();
+            foreach(var option in options)
+            {
+                Console.WriteLine(option);
             }
         }
 
@@ -258,6 +281,7 @@ namespace DataPrepper.Console_Related
             GoodComputerTalk(nameof(RefreshData));
             GoodComputerTalk(nameof(Help));
             GoodComputerTalk(nameof(GenerateInBatches));
+            GoodComputerTalk(nameof(GetOptions));
             GoodComputerTalk("");
 
             ErrorComputerTalk("These are to leave if you wish to...");
