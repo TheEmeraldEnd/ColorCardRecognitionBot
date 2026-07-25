@@ -3,6 +3,7 @@ import * as DataComparer from '../DataRelated/DataComparer.js';
 import * as WeightRandomizer from './WeightRandomizer.js';
 import * as MathExtension from '../MathRelated/MathFunctions.js';
 import * as ActivationFunctions from './ActivationFunctions.js';
+import * as GroupLoaderHandler from '../FileRelated/GroupLoaderHandler.js'
 import { clone } from '@tensorflow/tfjs';
 
 //Note that highest value accuracy bots should be at the right of array while lowest are beginning
@@ -444,5 +445,42 @@ export class GroupMachineClass {
 	AddNewBot(incomingName = '') {
 		let tempMachineLearner = new MLHandler.ModelClass(incomingName);
 		this.bots.push(tempMachineLearner);
+	}
+
+	SaveGroup(){
+		let savingBotGroupJSON = []
+		savingBotGroupJSON = this.bots.map(b => b.ToJSON());
+		
+		let groupName = this.groupName;
+
+		let amountOfBots = this.amountOfBots;
+
+		let stringifiedBots = JSON.stringify({savingBotGroupJSON, groupName, amountOfBots});
+		this.bots[0].model.layers[0].getWeights()[0].print()
+		//Need to write this into a file
+		GroupLoaderHandler.SaveGroup(this.groupName, stringifiedBots)
+
+	}
+
+	static LoadGroup(incomingBotGroupName = ''){
+
+		if (incomingBotGroupName === ''){
+			return new GroupMachineClass();
+		}
+		let dataJSON = GroupLoaderHandler.LoadGroupJSON(incomingBotGroupName);
+		let parsedJSON = JSON.parse(dataJSON);
+		
+
+		let tempAmountOfBots = parsedJSON.amountOfBots;
+		let tempName = parsedJSON.groupName;
+		let tempBotsJSONs = parsedJSON.savingBotGroupJSON
+
+		let bots = tempBotsJSONs.map(e => MLHandler.ModelClass.FromJSON(e));
+		let newGroupOfBots = new GroupMachineClass(tempAmountOfBots, tempName);
+
+		newGroupOfBots.bots = bots;
+		console.log(`Loaded full ${tempName} successfully`)
+		newGroupOfBots.bots[0].model.layers[0].getWeights()[0].print();
+		return newGroupOfBots
 	}
 }

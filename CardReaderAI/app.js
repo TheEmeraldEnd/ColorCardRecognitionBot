@@ -164,18 +164,11 @@ for (let i = 0; i < predictionTensors.length; i++) {
 		),
 	);
 }
-console.log('thing');
+
 let actualLabels = formattedTrainingData.GetLabelsAsArray();
 
-for (let i = 0; i < botGroup.bots.length; i++) {
-	botGroup.bots[i].SetAllWeights(i % 2);
-}
-
 //botGroup.PredictAllAndSort(predictedLabelses, actualLabels);
-//FIgure out where error came from
-console.log(botGroup.bots.length);
-botGroup.DeleteHalfRandom();
-console.log(botGroup.bots.length);
-botGroup.CrossoverToFill();
-console.log('Thing' + botGroup.bots.length);
+
+botGroup.SaveGroup()
+botGroup = MLGroupHandler.GroupMachineClass.LoadGroup(testGroupName);
 //#endregion
