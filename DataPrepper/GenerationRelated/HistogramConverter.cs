@@ -52,7 +52,7 @@ namespace DataPrepper.GenerationRelated
             }
         }
 
-        public const int defaultPercentileGroup = 12;
+        public const int defaultPercentileGroup = 24;
 
         public static string SerializeJSON(Histogram incomingHistogram)
         {

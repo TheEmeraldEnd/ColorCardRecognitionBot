@@ -51,7 +51,60 @@
               "RelativeToolTip": "GenerationRelated\\HistogramConverter.cs",
               "ViewState": "AgIAAFEAAAAAAAAAAAAgwFMAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-29T19:19:55.693Z"
+              "WhenOpened": "2026-07-25T19:25:22.094Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ImageFileHandler.cs",
+              "DocumentMoniker": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\FileRelated\\ImageFileHandler.cs",
+              "RelativeDocumentMoniker": "FileRelated\\ImageFileHandler.cs",
+              "ToolTip": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\FileRelated\\ImageFileHandler.cs",
+              "RelativeToolTip": "FileRelated\\ImageFileHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-25T19:25:10.424Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "TemplateRandomizer.cs",
+              "DocumentMoniker": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\GenerationRelated\\TemplateRandomizer.cs",
+              "RelativeDocumentMoniker": "GenerationRelated\\TemplateRandomizer.cs",
+              "ToolTip": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\GenerationRelated\\TemplateRandomizer.cs",
+              "RelativeToolTip": "GenerationRelated\\TemplateRandomizer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAABaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-25T19:24:44.77Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "HistogramFileHandler.cs",
+              "DocumentMoniker": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\FileRelated\\HistogramFileHandler.cs",
+              "RelativeDocumentMoniker": "FileRelated\\HistogramFileHandler.cs",
+              "ToolTip": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\FileRelated\\HistogramFileHandler.cs",
+              "RelativeToolTip": "FileRelated\\HistogramFileHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-22T02:26:47.336Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FileGrabbers.cs",
+              "DocumentMoniker": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\FileRelated\\FileGrabbers.cs",
+              "RelativeDocumentMoniker": "FileRelated\\FileGrabbers.cs",
+              "ToolTip": "C:\\Users\\Sage\\Documents\\GitHub\\ColorCardRecognitionBot\\DataPrepper\\FileRelated\\FileGrabbers.cs",
+              "RelativeToolTip": "FileRelated\\FileGrabbers.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-25T17:52:24.958Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -68,7 +121,7 @@
           ]
         },
         {
-          "DockedHeight": 511,
+          "DockedHeight": 49,
           "SelectedChildIndex": -1,
           "Children": [
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using Newtonsoft;
 
@@ -19,6 +20,33 @@ namespace DataPrepper.FileRelated
                 {
                     return DataConfigFilePath + "/" + DataConfigFileName;
                 }
+            }
+        }
+
+        public static class DataOptionsInfo
+        {
+            public static string DataOptionsInfoPath = "../../DataDefaults";
+            public static string DataOptionsInfoName = "Data_Options";
+            public static string NameAndPath
+            {
+                get
+                {
+                    return DataOptionsInfoPath + "/" + DataOptionsInfoName;
+                }
+            }
+            public static string[] GetAllOptionFileNamesAndPaths()
+            {
+                string[] optionNames = GetAllOptionFileNames();
+
+                optionNames = optionNames.Select(o => $"{NameAndPath}/{o}").ToArray();
+                return optionNames;
+            }
+
+            public static string[] GetAllOptionFileNames()
+            {
+                string destinationString = NameAndPath;
+                string[] optionNamesAndPaths = FileHandler.GetCurrentFiles(NameAndPath);
+                return optionNamesAndPaths;
             }
         }
 

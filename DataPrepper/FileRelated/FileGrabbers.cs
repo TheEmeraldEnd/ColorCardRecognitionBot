@@ -29,9 +29,27 @@ namespace DataPrepper.FileRelated
 
         public static string[] GetImageTestPathsAndNames()
         {
+
             string directoryPath = DataConfigHandler.AlteredDataConfigContent.TestsPath;
-            string[] namesAndPaths = GetImageTemplateNames().Select(s => $"{directoryPath}/{s}").ToArray();
+            string[] namesAndPaths = GetImageTestNames().Select(s => $"{directoryPath}/{s}").ToArray();
             return namesAndPaths;
+        }
+
+        public static string[] GetImageTestPathsAndNamesAndExtension()
+        {
+            string[] paths = GetImageTestPathsAndNames();
+            paths = paths.Select(p => $"{p}.png").ToArray();
+            return paths;
+        }
+
+        public static string[] GetOptions()
+        {
+            return DataConfigHandler.DataOptionsInfo.GetAllOptionFileNames();
+        }
+
+        public static string[] GetOptionPathsAndNames()
+        {
+            return DataConfigHandler.DataOptionsInfo.GetAllOptionFileNamesAndPaths();
         }
     }
 }
