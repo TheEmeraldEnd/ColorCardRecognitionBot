@@ -4,6 +4,16 @@ export function Test(){
     console.log('fileHandler test successful');
 }
 
+export function DeleteFileIfExists(fileNameAndPathExtension = ''){
+    if (!IsFileOrDirectoryExist(fileNameAndPathExtension))
+        return;
+
+    fs.unlinkSync(fileNameAndPathExtension, (err) => {
+        if (err) throw err;
+        console.log('File Deleted Successfully');
+    })
+}
+
 //If file exists, overrite it
 export function WriteToFile(fileNamePathExtension = "", fileContent = ""){
     try{

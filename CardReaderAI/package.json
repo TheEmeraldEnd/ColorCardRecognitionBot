@@ -7,5 +7,8 @@
     "npm": "^11.17.0",
     "python": "^0.0.4",
     "tfjs-node-save": "^0.0.2"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6"
   }
 }

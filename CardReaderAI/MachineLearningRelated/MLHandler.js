@@ -588,7 +588,7 @@ class ModelSaver {
 
 		ModelLoaderHandler.SaveModel(
 			incomingModelClass.GetName(),
-			JSON.stringify(modelDataHolder),
+			jsonDataHolder,
 		);
 	}
 }

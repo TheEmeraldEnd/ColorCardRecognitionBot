@@ -2,6 +2,13 @@ import * as FileHandler from "./FileHandler.js"
 
 const BOT_SAVE_PATH = "../BotRelated/SavedBots";
 
+export function DeleteBotIfExists(modelName){
+    if (!IsBotSaved(modelName))
+        return;
+
+    FileHandler.DeleteFileIfExists(GetSaveFileName(modelName));
+}
+
 export function SaveModel(modelName = "", jsonContent = ""){
     FileHandler.WriteToFile(GetSaveFileName(modelName), jsonContent);
 }
