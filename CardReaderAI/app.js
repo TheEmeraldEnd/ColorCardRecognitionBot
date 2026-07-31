@@ -1,46 +1,53 @@
-import * as FileHandler from "./FileRelated/fileHandler.js";
-import * as HistogramHandler from "./FileRelated/histogramHandler.js";
-import * as OptionsHandler from "./FileRelated/optionHandler.js";
+import * as FileHandler from './FileRelated/fileHandler.js';
+import * as HistogramHandler from './FileRelated/histogramHandler.js';
+import * as OptionsHandler from './FileRelated/optionHandler.js';
 
-import * as MLHandler from "./MachineLearningRelated/MLHandler.js";
-import * as tf from "@tensorflow/tfjs";
+import * as MLHandler from './MachineLearningRelated/MLHandler.js';
+import * as tf from '@tensorflow/tfjs';
 
-import * as DataHolder from "./DataRelated/DataHolder.js";
-import * as DataTranslator from "./DataRelated/DataTranslator.js";
-import * as DataComparer from "./DataRelated/DataComparer.js";
+import * as DataHolder from './DataRelated/DataHolder.js';
+import * as DataTranslator from './DataRelated/DataTranslator.js';
+import * as DataComparer from './DataRelated/DataComparer.js';
 
-import * as MathExtension from "./MathRelated/MathFunctions.js";
+import * as MathExtension from './MathRelated/MathFunctions.js';
 
-import * as MLGroupHandler from "./MachineLearningRelated/GroupMLHandler.js";
+import * as MLGroupHandler from './MachineLearningRelated/GroupMLHandler.js';
 
-import * as WeightRandomizer from "./MachineLearningRelated/WeightRandomizer.js";
-import * as ActivationFunctions from "./MachineLearningRelated/ActivationFunctions.js";
+import * as WeightRandomizer from './MachineLearningRelated/WeightRandomizer.js';
+import * as ActivationFunctions from './MachineLearningRelated/ActivationFunctions.js';
 
-import * as SinlgeBotConsoleCommands from "./ConsoleCommands/SingleBotConsoleCommands.js";
+import * as SinlgeBotConsoleCommands from './ConsoleCommands/SingleBotConsoleCommands.js';
 
-let testBotName = "TestBot";
+let testBotName = 'TestBot';
+
+let isGroupTesting = false;
+
+if (isGroupTesting === false) {
+	let isTestOnTrainingData = false;
+
+	let totalEpochAmount = 1000;
+	let epochLogIteration = 10;
+	let dataGroupAmount = 20;
+
+	let amountOfHiddenLayers = 2;
+	let hiddenLayerActivationFunction = ActivationFunctions.GetRelu();
+	let outputLayerActivationFunction = ActivationFunctions.GetSigmoid();
+
+	await SinlgeBotConsoleCommands.TrainNewThenRun(
+		testBotName,
+		isTestOnTrainingData,
+		totalEpochAmount,
+		epochLogIteration,
+		dataGroupAmount,
+		amountOfHiddenLayers,
+		hiddenLayerActivationFunction,
+		outputLayerActivationFunction,
+	);
+} else {
+}
 
 //#region Single Bot training
-let isTestOnTrainingData = false;
 
-let totalEpochAmount = 1000;
-let epochLogIteration = 10;
-let dataGroupAmount = 20;
-
-let amountOfHiddenLayers = 2;
-let hiddenLayerActivationFunction = ActivationFunctions.GetRelu();
-let outputLayerActivationFunction = ActivationFunctions.GetSigmoid();
-
-await SinlgeBotConsoleCommands.TrainNewThenRun(
-  testBotName,
-  isTestOnTrainingData,
-  totalEpochAmount,
-  epochLogIteration,
-  dataGroupAmount,
-  amountOfHiddenLayers,
-  hiddenLayerActivationFunction,
-  outputLayerActivationFunction,
-);
 //#endregion
 
 // let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();

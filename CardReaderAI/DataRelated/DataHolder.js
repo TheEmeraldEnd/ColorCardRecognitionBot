@@ -1,81 +1,99 @@
 import * as tf from '@tensorflow/tfjs';
-import * as HistogramHandler from '../FileRelated/histogramHandler.js'
+import * as HistogramHandler from '../FileRelated/histogramHandler.js';
 
-export class DataHolder{
-    constructor(rawDataColorArray = [], incomingLabelsAsStrings = [], incomingPossibleOptions = []){
+import { RandomizeArrayElements } from '../LogicRelated/LogicFunctions.js';
 
-        this.rawDataColorArray = rawDataColorArray;
-        this.labels = incomingLabelsAsStrings;
-        this.possibleOptions = incomingPossibleOptions;
+export class DataHolder {
+	constructor(
+		rawDataColorArray = [],
+		incomingLabelsAsStrings = [],
+		incomingPossibleOptions = [],
+	) {
+		this.rawDataColorArray = rawDataColorArray;
+		this.labels = incomingLabelsAsStrings;
+		this.possibleOptions = incomingPossibleOptions;
 
-        this.labels = this.labels.map(s => s.trim());
-    }
-0
-    InitializeDataHolder(rawDataColorArray = [], incomingLabelsAsStrings = [], incomingPossibleOptions = []){
-        this.rawDataColorArray = rawDataColorArray;
-        this.labels = incomingLabelsAsStrings;
-        this.possibleOptions = incomingPossibleOptions;
+		this.labels = this.labels.map((s) => s.trim());
+	}
 
-        for(let i = 0; i < this.labels.length; i++){
-            let currentLabel = this.labels[i];
-            if (!this.possibleOptions.includes(currentLabel)){
-                console.log(`No option included in ${this}`);
-            } 
-        }
-    }
+	InitializeDataHolder(
+		rawDataColorArray = [],
+		incomingLabelsAsStrings = [],
+		incomingPossibleOptions = [],
+	) {
+		this.rawDataColorArray = rawDataColorArray;
+		this.labels = incomingLabelsAsStrings;
+		this.possibleOptions = incomingPossibleOptions;
 
-    static InitializeNewDataHolder(histogramArray = [], incomingPossibleOptions = []){
-        let tempRawColorArray = [];
-        let tempLabelsArray = [];
+		for (let i = 0; i < this.labels.length; i++) {
+			let currentLabel = this.labels[i];
+			if (!this.possibleOptions.includes(currentLabel)) {
+				console.log(`No option included in ${this}`);
+			}
+		}
+	}
 
-        histogramArray.forEach(
-            h => {
-                tempRawColorArray.push(h.colorArray);
-                tempLabelsArray.push(h.name);
-            }
-        );
+	static InitializeNewDataHolder(
+		histogramArray = [],
+		incomingPossibleOptions = [],
+	) {
+		histogramArray = RandomizeArrayElements(histogramArray);
 
-        let tempHolder = new DataHolder(tempRawColorArray, tempLabelsArray, incomingPossibleOptions)
-        return tempHolder;
-    }
+		let tempRawColorArray = [];
+		let tempLabelsArray = [];
 
-    print(){
-        for(let i = 0; i < this.rawDataColorArray.length; i++){
-            console.log(`Histogram [${i}]: ${this.labels[i]} [${this.rawDataColorArray[i]}]`)
-        }
-    }
+		histogramArray.forEach((h) => {
+			tempRawColorArray.push(h.colorArray);
+			tempLabelsArray.push(h.name);
+		});
 
-    GetRawColorDataAsTensor(){
-        let tempTensorResult = tf.tensor2d(this.rawDataColorArray);
-        return tempTensorResult;
-    }
+		let tempHolder = new DataHolder(
+			tempRawColorArray,
+			tempLabelsArray,
+			incomingPossibleOptions,
+		);
+		return tempHolder;
+	}
 
-    GetRawColorDataAsArray(){
-        return this.colorArray;
-    }
+	print() {
+		for (let i = 0; i < this.rawDataColorArray.length; i++) {
+			console.log(
+				`Histogram [${i}]: ${this.labels[i]} [${this.rawDataColorArray[i]}]`,
+			);
+		}
+	}
 
-    GetLabelsAsTensor(){
-        let tempTensorResult = tf.tensor1d(this.labels);
-        return tempTensorResult;
-    }
+	GetRawColorDataAsTensor() {
+		let tempTensorResult = tf.tensor2d(this.rawDataColorArray);
+		return tempTensorResult;
+	}
 
-    GetOptionNames(){
-        return this.possibleOptions;
-    }
+	GetRawColorDataAsArray() {
+		return this.colorArray;
+	}
 
-    GetOptionsLength(){
-        return this.possibleOptions.length;
-    }
+	GetLabelsAsTensor() {
+		let tempTensorResult = tf.tensor1d(this.labels);
+		return tempTensorResult;
+	}
 
-    GetLabelsAsArray(){
-        return this.labels;
-    }
+	GetOptionNames() {
+		return this.possibleOptions;
+	}
 
-    GetLengthsOfRawColorArray(){
-        return this.rawDataColorArray[0].length;
-    }
+	GetOptionsLength() {
+		return this.possibleOptions.length;
+	}
 
-    GetPossibleOptionsLength(){
-        return this.possibleOptions.length;
-    }
+	GetLabelsAsArray() {
+		return this.labels;
+	}
+
+	GetLengthsOfRawColorArray() {
+		return this.rawDataColorArray[0].length;
+	}
+
+	GetPossibleOptionsLength() {
+		return this.possibleOptions.length;
+	}
 }
