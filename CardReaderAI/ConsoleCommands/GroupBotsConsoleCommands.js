@@ -141,3 +141,9 @@ export async function TrainingThenRun() {
     // );
   }
 }
+
+export async function RunGenerational() {}
+
+export async function RunSteadyGenerational() {}
+
+export async function RunLearningGenerational() {}
