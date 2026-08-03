@@ -1,278 +1,299 @@
-import * as FileHandler from './fileHandler.js';
+import * as FileHandler from "./fileHandler.js";
 
 //const dataTrainingPath = "../DataRelated/Data/Data_Training";
 
 //const colorfulHistogramDirPath = `${dataTrainingPath}/Data_Histogram_Color`;
 
-export class ColorfulClass{
-    static colorfulHistogramDirPath = `../DataRelated/Data/Data_Training/Data_Histogram_Color`;
-    
-    static GetHistogram(incomingHistogramName = ""){
-        let histogramContent = this.GetHistogramContent(incomingHistogramName);
-        let parsedJsonContent = JSON.parse(histogramContent);
+export class ColorfulClass {
+  static colorfulHistogramDirPath = `../DataRelated/Data/Data_Training/Data_Histogram_Color`;
 
-        let jsonColorArray = parsedJsonContent.ColorArray;
-        let colorArray = [];
-        
-        for(let i = 0; i < jsonColorArray.length; i++){
-            colorArray.push(jsonColorArray[i])
-        }
+  static GetHistogram(incomingHistogramName = "") {
+    let histogramContent = ColorfulClass.GetHistogramContent(
+      incomingHistogramName,
+    );
+    let parsedJsonContent = JSON.parse(histogramContent);
 
-        let histogram = new Histogram(parsedJsonContent.Name, parsedJsonContent.FilterType, colorArray);
-        return histogram;
+    let jsonColorArray = parsedJsonContent.ColorArray;
+    let colorArray = [];
+
+    for (let i = 0; i < jsonColorArray.length; i++) {
+      colorArray.push(jsonColorArray[i]);
     }
 
-    static GetAllHistograms(){
-        let resultPaths = ColorfulClass.GetHistogramNamesAndRelativePaths();
-        let resultHistograms = [];
+    let histogram = new Histogram(
+      parsedJsonContent.Name,
+      parsedJsonContent.FilterType,
+      colorArray,
+    );
+    return histogram;
+  }
 
-        for(let i = 0; i < resultPaths.length; i++){
-            resultHistograms.push(resultPaths[i]);
-        }
+  static GetAllHistograms() {
+    let resultNames = this.GetHistogramNamesAndExtensions();
+    let resultHistograms = [];
 
-        return resultHistograms;
+    for (let i = 0; i < resultNames.length; i++) {
+      let tempHistogram = this.GetHistogram(resultNames[i]);
+      resultHistograms.push(tempHistogram);
     }
 
+    return resultHistograms;
+  }
 
-    static GetHistogramContent(incomingHistogramName = ""){
-        let testFilePath = incomingHistogramName.replace('.txt');
-        testFilePath += '.txt';
-        testFilePath = `${this.colorfulHistogramDirPath}/${incomingHistogramName}`;
-        
+  static GetHistogramContent(incomingHistogramName = "") {
+    let testFilePath = incomingHistogramName.replace(".txt");
+    testFilePath += ".txt";
+    testFilePath = `${this.colorfulHistogramDirPath}/${incomingHistogramName}`;
 
-        if (!FileHandler.IsFileOrDirectoryExist(testFilePath)){
-            console.log(`File ${testFilePath} doesn't exist`);
-            return;
-        }
-
-        let histogramContent = FileHandler.ReadFromFile(testFilePath);
-
-        return histogramContent;
+    if (!FileHandler.IsFileOrDirectoryExist(testFilePath)) {
+      console.log(`File ${testFilePath} doesn't exist`);
+      return;
     }
 
-    static GetHistogramNamesAndRelativePaths(){
-        let histogramNames =  GetHistogramNamesAndExtensions();
+    let histogramContent = FileHandler.ReadFromFile(testFilePath);
 
-        for(let i = 0; i < histogramNames.length; i++){
-        histogramNames[i] = `${this.colorfulHistogramDirPath}/${histogramNames[i]}`
-        }
+    return histogramContent;
+  }
 
-        return histogramNames;
+  static GetHistogramNamesAndRelativePaths() {
+    let histogramNames = ColorfulClass.GetHistogramNamesAndExtensions();
+
+    for (let i = 0; i < histogramNames.length; i++) {
+      histogramNames[i] =
+        `${this.colorfulHistogramDirPath}/${histogramNames[i]}`;
     }
 
-    static GetHistogramNamesAndExtensions(){
-        let histogramNames = FileHandler.ReadDirectoryContent(this.colorfulHistogramDirPath);
-        return histogramNames;
-    }
+    return histogramNames;
+  }
 
+  static GetHistogramNamesAndExtensions() {
+    let histogramNames = FileHandler.ReadDirectoryContent(
+      this.colorfulHistogramDirPath,
+    );
+    return histogramNames;
+  }
 }
 
-export class MonochromeClass{
-    static monochromeHistogramDirPath = `../DataRelated/Data/Data_Training/Data_Histogram_Monochrome`;
-    
-    static GetHistogram(incomingHistogramName = ""){
-        let histogramContent = this.GetHistogramContent(incomingHistogramName);
-        let parsedJsonContent = JSON.parse(histogramContent);
+export class MonochromeClass {
+  static monochromeHistogramDirPath = `../DataRelated/Data/Data_Training/Data_Histogram_Monochrome`;
 
-        let jsonColorArray = parsedJsonContent.ColorArray;
-        let colorArray = [];
-        
-        for(let i = 0; i < jsonColorArray.length; i++){
-            colorArray.push(jsonColorArray[i])
-        }
+  static GetHistogram(incomingHistogramName = "") {
+    let histogramContent = this.GetHistogramContent(incomingHistogramName);
+    let parsedJsonContent = JSON.parse(histogramContent);
 
-        let histogram = new Histogram(parsedJsonContent.Name, parsedJsonContent.FilterType, colorArray);
-        return histogram;
+    let jsonColorArray = parsedJsonContent.ColorArray;
+    let colorArray = [];
+
+    for (let i = 0; i < jsonColorArray.length; i++) {
+      colorArray.push(jsonColorArray[i]);
     }
 
-    static GetAllHistograms(){
-        let resultNames = MonochromeClass.GetHistogramNamesAndExtensions();
-        let resultHistograms = [];
+    let histogram = new Histogram(
+      parsedJsonContent.Name,
+      parsedJsonContent.FilterType,
+      colorArray,
+    );
+    return histogram;
+  }
 
-        for(let i = 0; i < resultNames.length; i++){
-            let tempHistogram = MonochromeClass.GetHistogram(resultNames[i])
-            resultHistograms.push(tempHistogram);
-        }
+  static GetAllHistograms() {
+    let resultNames = MonochromeClass.GetHistogramNamesAndExtensions();
+    let resultHistograms = [];
 
-        return resultHistograms;
+    for (let i = 0; i < resultNames.length; i++) {
+      let tempHistogram = MonochromeClass.GetHistogram(resultNames[i]);
+      resultHistograms.push(tempHistogram);
     }
 
-    static GetHistogramContent(incomingHistogramName = ""){
-        let testFilePath = incomingHistogramName.replace('.txt', '');
-        testFilePath += '.txt';
-        testFilePath = `${this.monochromeHistogramDirPath}/${incomingHistogramName}`;
-        
+    return resultHistograms;
+  }
 
-        if (!FileHandler.IsFileOrDirectoryExist(testFilePath)){
-            console.log(`File ${testFilePath} doesn't exist`);
-            return;
-        }
+  static GetHistogramContent(incomingHistogramName = "") {
+    let testFilePath = incomingHistogramName.replace(".txt", "");
+    testFilePath += ".txt";
+    testFilePath = `${this.monochromeHistogramDirPath}/${incomingHistogramName}`;
 
-        let histogramContent = FileHandler.ReadFromFile(testFilePath);
-        return histogramContent;
+    if (!FileHandler.IsFileOrDirectoryExist(testFilePath)) {
+      console.log(`File ${testFilePath} doesn't exist`);
+      return;
     }
 
-    static GetHistogramNamesAndRelativePaths(){
-        let histogramNames =  MonochromeClass.GetHistogramNamesAndExtensions();
+    let histogramContent = FileHandler.ReadFromFile(testFilePath);
+    return histogramContent;
+  }
 
-        for(let i = 0; i < histogramNames.length; i++){
-            histogramNames[i] = `${this.monochromeHistogramDirPath}/${histogramNames[i]}`
-        }
+  static GetHistogramNamesAndRelativePaths() {
+    let histogramNames = MonochromeClass.GetHistogramNamesAndExtensions();
 
-        return histogramNames;
+    for (let i = 0; i < histogramNames.length; i++) {
+      histogramNames[i] =
+        `${this.monochromeHistogramDirPath}/${histogramNames[i]}`;
     }
 
-    static GetHistogramNamesAndExtensions(){
-        let histogramNames = FileHandler.ReadDirectoryContent(this.monochromeHistogramDirPath);
-        return histogramNames;
-    }
+    return histogramNames;
+  }
 
+  static GetHistogramNamesAndExtensions() {
+    let histogramNames = FileHandler.ReadDirectoryContent(
+      this.monochromeHistogramDirPath,
+    );
+    return histogramNames;
+  }
 }
 
-export class MonochromeTestingClass{
-    static monochromeHistogramDirPath = `../DataRelated/Data/Data_Testing/Data_Histogram_Monochrome`;
-    
-    static GetHistogram(incomingHistogramName = ""){
-        let histogramContent = this.GetHistogramContent(incomingHistogramName);
-        let parsedJsonContent = JSON.parse(histogramContent);
+export class MonochromeTestingClass {
+  static monochromeHistogramDirPath = `../DataRelated/Data/Data_Testing/Data_Histogram_Monochrome`;
 
-        let jsonColorArray = parsedJsonContent.ColorArray;
-        let colorArray = [];
-        
-        for(let i = 0; i < jsonColorArray.length; i++){
-            colorArray.push(jsonColorArray[i])
-        }
+  static GetHistogram(incomingHistogramName = "") {
+    let histogramContent = this.GetHistogramContent(incomingHistogramName);
+    let parsedJsonContent = JSON.parse(histogramContent);
 
-        let histogram = new Histogram(parsedJsonContent.Name, parsedJsonContent.FilterType, colorArray);
-        return histogram;
+    let jsonColorArray = parsedJsonContent.ColorArray;
+    let colorArray = [];
+
+    for (let i = 0; i < jsonColorArray.length; i++) {
+      colorArray.push(jsonColorArray[i]);
     }
 
-    static GetAllHistograms(){
-        let resultNames = MonochromeTestingClass.GetHistogramNamesAndExtensions();
-        let resultHistograms = [];
+    let histogram = new Histogram(
+      parsedJsonContent.Name,
+      parsedJsonContent.FilterType,
+      colorArray,
+    );
+    return histogram;
+  }
 
-        for(let i = 0; i < resultNames.length; i++){
-            let tempHistogram = MonochromeTestingClass.GetHistogram(resultNames[i])
-            resultHistograms.push(tempHistogram);
-        }
+  static GetAllHistograms() {
+    let resultNames = MonochromeTestingClass.GetHistogramNamesAndExtensions();
+    let resultHistograms = [];
 
-        return resultHistograms;
+    for (let i = 0; i < resultNames.length; i++) {
+      let tempHistogram = MonochromeTestingClass.GetHistogram(resultNames[i]);
+      resultHistograms.push(tempHistogram);
     }
 
-    static GetHistogramContent(incomingHistogramName = ""){
-        let testFilePath = incomingHistogramName.replace('.txt', '');
-        testFilePath += '.txt';
-        testFilePath = `${this.monochromeHistogramDirPath}/${incomingHistogramName}`;
-        
+    return resultHistograms;
+  }
 
-        if (!FileHandler.IsFileOrDirectoryExist(testFilePath)){
-            console.log(`File ${testFilePath} doesn't exist`);
-            return;
-        }
+  static GetHistogramContent(incomingHistogramName = "") {
+    let testFilePath = incomingHistogramName.replace(".txt", "");
+    testFilePath += ".txt";
+    testFilePath = `${this.monochromeHistogramDirPath}/${incomingHistogramName}`;
 
-        let histogramContent = FileHandler.ReadFromFile(testFilePath);
-        return histogramContent;
+    if (!FileHandler.IsFileOrDirectoryExist(testFilePath)) {
+      console.log(`File ${testFilePath} doesn't exist`);
+      return;
     }
 
-    static GetHistogramNamesAndRelativePaths(){
-        let histogramNames =  MonochromeTestingClass.GetHistogramNamesAndExtensions();
+    let histogramContent = FileHandler.ReadFromFile(testFilePath);
+    return histogramContent;
+  }
 
-        for(let i = 0; i < histogramNames.length; i++){
-            histogramNames[i] = `${this.monochromeHistogramDirPath}/${histogramNames[i]}`
-        }
+  static GetHistogramNamesAndRelativePaths() {
+    let histogramNames =
+      MonochromeTestingClass.GetHistogramNamesAndExtensions();
 
-        return histogramNames;
+    for (let i = 0; i < histogramNames.length; i++) {
+      histogramNames[i] =
+        `${this.monochromeHistogramDirPath}/${histogramNames[i]}`;
     }
 
-    static GetHistogramNamesAndExtensions(){
-        let histogramNames = FileHandler.ReadDirectoryContent(this.monochromeHistogramDirPath);
-        return histogramNames;
-    }
+    return histogramNames;
+  }
+
+  static GetHistogramNamesAndExtensions() {
+    let histogramNames = FileHandler.ReadDirectoryContent(
+      this.monochromeHistogramDirPath,
+    );
+    return histogramNames;
+  }
 }
 
-export class ColorfulTestingClasss{
-    static colorfulHistogramDirPath = `../DataRelated/Data/Data_Testing/Data_Histogram_Color`;
-    
-    static GetHistogram(incomingHistogramName = ""){
-        let histogramContent = this.GetHistogramContent(incomingHistogramName);
-        let parsedJsonContent = JSON.parse(histogramContent);
+export class ColorfulTestingClasss {
+  static colorfulHistogramDirPath = `../DataRelated/Data/Data_Testing/Data_Histogram_Color`;
 
-        let jsonColorArray = parsedJsonContent.ColorArray;
-        let colorArray = [];
-        
-        for(let i = 0; i < jsonColorArray.length; i++){
-            colorArray.push(jsonColorArray[i])
-        }
+  static GetHistogram(incomingHistogramName = "") {
+    let histogramContent = this.GetHistogramContent(incomingHistogramName);
+    let parsedJsonContent = JSON.parse(histogramContent);
 
-        let histogram = new Histogram(parsedJsonContent.Name, parsedJsonContent.FilterType, colorArray);
-        return histogram;
+    let jsonColorArray = parsedJsonContent.ColorArray;
+    let colorArray = [];
+
+    for (let i = 0; i < jsonColorArray.length; i++) {
+      colorArray.push(jsonColorArray[i]);
     }
 
-    static GetAllHistograms(){
-        let resultNames = this.GetHistogramNamesAndExtensions();
-        let resultHistograms = [];
+    let histogram = new Histogram(
+      parsedJsonContent.Name,
+      parsedJsonContent.FilterType,
+      colorArray,
+    );
+    return histogram;
+  }
 
-        for(let i = 0; i < resultNames.length; i++){
-            let tempHistogram = this.GetHistogram(resultNames[i])
-            resultHistograms.push(tempHistogram);
-        }
+  static GetAllHistograms() {
+    let resultNames = this.GetHistogramNamesAndExtensions();
+    let resultHistograms = [];
 
-        return resultHistograms;
+    for (let i = 0; i < resultNames.length; i++) {
+      let tempHistogram = this.GetHistogram(resultNames[i]);
+      resultHistograms.push(tempHistogram);
     }
 
+    return resultHistograms;
+  }
 
-    static GetHistogramContent(incomingHistogramName = ""){
-        let testFilePath = incomingHistogramName.replace('.txt');
-        testFilePath += '.txt';
-        testFilePath = `${this.colorfulHistogramDirPath}/${incomingHistogramName}`;
-        
+  static GetHistogramContent(incomingHistogramName = "") {
+    let testFilePath = incomingHistogramName.replace(".txt");
+    testFilePath += ".txt";
+    testFilePath = `${this.colorfulHistogramDirPath}/${incomingHistogramName}`;
 
-        if (!FileHandler.IsFileOrDirectoryExist(testFilePath)){
-            console.log(`File ${testFilePath} doesn't exist`);
-            return;
-        }
-
-        let histogramContent = FileHandler.ReadFromFile(testFilePath);
-
-        return histogramContent;
+    if (!FileHandler.IsFileOrDirectoryExist(testFilePath)) {
+      console.log(`File ${testFilePath} doesn't exist`);
+      return;
     }
 
-    static GetHistogramNamesAndRelativePaths(){
-        let histogramNames =  this.GetHistogramNamesAndExtensions();
+    let histogramContent = FileHandler.ReadFromFile(testFilePath);
 
-        for(let i = 0; i < histogramNames.length; i++){
-        histogramNames[i] = `${this.colorfulHistogramDirPath}/${histogramNames[i]}`
-        }
+    return histogramContent;
+  }
 
-        return histogramNames;
+  static GetHistogramNamesAndRelativePaths() {
+    let histogramNames = this.GetHistogramNamesAndExtensions();
+
+    for (let i = 0; i < histogramNames.length; i++) {
+      histogramNames[i] =
+        `${this.colorfulHistogramDirPath}/${histogramNames[i]}`;
     }
 
-    static GetHistogramNamesAndExtensions(){
-        let histogramNames = FileHandler.ReadDirectoryContent(this.colorfulHistogramDirPath);
-        return histogramNames;
-    }
+    return histogramNames;
+  }
+
+  static GetHistogramNamesAndExtensions() {
+    let histogramNames = FileHandler.ReadDirectoryContent(
+      this.colorfulHistogramDirPath,
+    );
+    return histogramNames;
+  }
 }
 
-class Histogram{
-    constructor(name = "", filterType = 0, colorArray = []){
-        this.name = name;
-        this.filterType = filterType;
-        this.colorArray = colorArray;
-    }
-
-    
+class Histogram {
+  constructor(name = "", filterType = 0, colorArray = []) {
+    this.name = name;
+    this.filterType = filterType;
+    this.colorArray = colorArray;
+  }
 }
 
-
-
-
-function DisplayArray(incomingArray){
-    incomingArray.forEach( item => {
-        console.log(item);
-    })
+function DisplayArray(incomingArray) {
+  incomingArray.forEach((item) => {
+    console.log(item);
+  });
 }
 
-export function Test(){
-    let incomingHistogram = ColorfulClass.GetHistogram(ColorfulClass.GetHistogramNamesAndExtensions()[0]);
-    console.log(incomingHistogram);
+export function Test() {
+  let incomingHistogram = ColorfulClass.GetHistogram(
+    ColorfulClass.GetHistogramNamesAndExtensions()[0],
+  );
+  console.log(incomingHistogram);
 }
