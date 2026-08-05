@@ -1,14 +1,14 @@
-import * as MLHandler from '../MachineLearningRelated/MLHandler.js';
-import * as DataComparer from '../DataRelated/DataComparer.js';
-import * as WeightRandomizer from './WeightRandomizer.js';
-import * as MathExtension from '../MathRelated/MathFunctions.js';
-import * as ActivationFunctions from './ActivationFunctions.js';
-import * as GroupLoaderHandler from '../FileRelated/GroupLoaderHandler.js'
-import { clone } from '@tensorflow/tfjs';
+import * as MLHandler from "../MachineLearningRelated/MLHandler.js";
+import * as DataComparer from "../DataRelated/DataComparer.js";
+import * as WeightRandomizer from "./WeightRandomizer.js";
+import * as MathExtension from "../MathRelated/MathFunctions.js";
+import * as ActivationFunctions from "./ActivationFunctions.js";
+import * as GroupLoaderHandler from "../FileRelated/GroupLoaderHandler.js";
+import { clone } from "@tensorflow/tfjs";
 
 //Note that highest value accuracy bots should be at the right of array while lowest are beginning
 export class GroupMachineClass {
-	constructor(amountOfBots = 1, groupName = '') {
+	constructor(amountOfBots = 1, groupName = "") {
 		//Guard against non-positive intagers
 		if (amountOfBots <= 0) {
 			amountOfBots = 1;
@@ -32,7 +32,7 @@ export class GroupMachineClass {
 	AddLayerAfterInputLayer(
 		inputLayerNodes = 1,
 		nextLayerNodes = 1,
-		activationFunction = 'tanh',
+		activationFunction = "tanh",
 	) {
 		this.bots.map((b) =>
 			b.AddLayerAfterInputLayer(
@@ -43,7 +43,7 @@ export class GroupMachineClass {
 		);
 	}
 
-	AddLayer(nextLayerNodes = 1, activationFunction = '') {
+	AddLayer(nextLayerNodes = 1, activationFunction = "") {
 		this.bots.map((b) => b.AddLayer(nextLayerNodes, activationFunction));
 	}
 
@@ -51,8 +51,8 @@ export class GroupMachineClass {
 		inputLayerNodes = 1,
 		hiddenLayerNodes = [],
 		outputNodeAmounts = 1,
-		hiddenLayerActivationFunction = 'tanh',
-		outputLayerActivationFunction = 'sigmoid',
+		hiddenLayerActivationFunction = "tanh",
+		outputLayerActivationFunction = "sigmoid",
 	) {
 		this.bots.map((b) =>
 			b.ConfigureModel(
@@ -70,8 +70,8 @@ export class GroupMachineClass {
 	}
 
 	CompileMachines(
-		lossFunction = 'meanSquaredError',
-		icomingOptimizer = 'sgd',
+		lossFunction = "meanSquaredError",
+		icomingOptimizer = "sgd",
 	) {
 		this.bots.map((b) => b.CompileMachine(lossFunction, icomingOptimizer));
 	}
@@ -160,7 +160,7 @@ export class GroupMachineClass {
 	) {
 		//Guard against bot index bounds
 		if (botIndex < 0 || botIndex > this.bots.length) {
-			console.log('Please enter in a valid bot index');
+			console.log("Please enter in a valid bot index");
 		}
 
 		this.bots[botIndex].RandomizeAllLayersActivations(
@@ -362,6 +362,10 @@ export class GroupMachineClass {
 		return results;
 	}
 
+	static IsGroupSaved(incomingGroupName) {
+		return GroupLoaderHandler.IsGroupSaved(incomingGroupName);
+	}
+
 	GetGroupAverageAccuracy() {
 		let result = 0.0;
 		let count = this.bots.length;
@@ -372,6 +376,15 @@ export class GroupMachineClass {
 			`Average group accuracy for ${this.GetName()}: ${(result / count) * 100.0}%`,
 		);
 		return result / count;
+	}
+
+	PrintLastKnownAccuraciesAndInfo() {
+		for (let i = 0; i < this.bots.length; i++) {
+			console.log(`Bot ${i} summary:`);
+			console.log(
+				`Bot ${i} last recorded accuracy: ${this.bots[i].lastRecordedAccuracy}`,
+			);
+		}
 	}
 
 	LogAccuracies(incomingPredictedLabelsArray = [], actualLabels) {
@@ -392,7 +405,7 @@ export class GroupMachineClass {
 	}
 
 	//Sorted by lowest at left and highest at right
-	PredictAllAndSort(incomingPredictedLabelsArray = [], actualLabels) {
+	SortAll(incomingPredictedLabelsArray = [], actualLabels) {
 		this.LogAccuracies(incomingPredictedLabelsArray, actualLabels);
 		this.bots.sort(function (object1, object2) {
 			if (object1.lastRecordedAccuracy > object2.lastRecordedAccuracy)
@@ -412,7 +425,7 @@ export class GroupMachineClass {
 
 	async SaveModel() {}
 
-	static LoadModel(incomingModelName = '') {}
+	static LoadModel(incomingModelName = "") {}
 
 	async FitDataWithBatching(
 		inputData,
@@ -426,7 +439,6 @@ export class GroupMachineClass {
 			`Please wait until the data is done batching for ${this.groupName}`,
 		);
 
-		//Possibly remove await and put it later for better performance with multithreading
 		for (let i = 0; i < this.bots.length; i++) {
 			await this.bots[i].FitDataWithBatching(
 				inputData,
@@ -438,49 +450,56 @@ export class GroupMachineClass {
 			);
 		}
 
-		await Promise.resolve;
 		console.log(`Data batching for group ${this.groupName}`);
+		return;
 	}
 
-	AddNewBot(incomingName = '') {
+	AddNewBot(incomingName = "") {
 		let tempMachineLearner = new MLHandler.ModelClass(incomingName);
 		this.bots.push(tempMachineLearner);
 	}
 
-	SaveGroup(){
-		let savingBotGroupJSON = []
-		savingBotGroupJSON = this.bots.map(b => b.ToJSON());
-		
+	SaveGroup() {
+		let savingBotGroupJSON = [];
+		savingBotGroupJSON = this.bots.map((b) => b.ToJSON());
+
 		let groupName = this.groupName;
 
 		let amountOfBots = this.amountOfBots;
 
-		let stringifiedBots = JSON.stringify({savingBotGroupJSON, groupName, amountOfBots});
-		this.bots[0].model.layers[0].getWeights()[0].print()
+		let stringifiedBots = JSON.stringify({
+			savingBotGroupJSON,
+			groupName,
+			amountOfBots,
+		});
+		this.bots[0].model.layers[0].getWeights()[0].print();
 		//Need to write this into a file
-		GroupLoaderHandler.SaveGroup(this.groupName, stringifiedBots)
-
+		GroupLoaderHandler.SaveGroup(this.groupName, stringifiedBots);
 	}
 
-	static LoadGroup(incomingBotGroupName = ''){
-
-		if (incomingBotGroupName === ''){
+	static LoadGroup(incomingBotGroupName = "") {
+		if (incomingBotGroupName === "") {
 			return new GroupMachineClass();
 		}
 		let dataJSON = GroupLoaderHandler.LoadGroupJSON(incomingBotGroupName);
 		let parsedJSON = JSON.parse(dataJSON);
-		
 
 		let tempAmountOfBots = parsedJSON.amountOfBots;
 		let tempName = parsedJSON.groupName;
-		let tempBotsJSONs = parsedJSON.savingBotGroupJSON
+		let tempBotsJSONs = parsedJSON.savingBotGroupJSON;
 
-		let bots = tempBotsJSONs.map(e => MLHandler.ModelClass.FromJSON(e));
+		let bots = tempBotsJSONs.map((e) => MLHandler.ModelClass.FromJSON(e));
 		let newGroupOfBots = new GroupMachineClass(tempAmountOfBots, tempName);
 
 		newGroupOfBots.bots = bots;
-		console.log(`Loaded full ${tempName} successfully`)
+		console.log(`Loaded full ${tempName} successfully`);
 		newGroupOfBots.bots[0].model.layers[0].getWeights()[0].print();
-		return newGroupOfBots
+		return newGroupOfBots;
 	}
+
+	//Need to get this functioning with a loop and comparison with incoming data
+	RunThroughOneGeneration(
+		incomingAmountOfGeneration = 1,
+		isElitism = false,
+	) {}
 }

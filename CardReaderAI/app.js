@@ -19,36 +19,50 @@ import * as ActivationFunctions from "./MachineLearningRelated/ActivationFunctio
 import * as SinlgeBotConsoleCommands from "./ConsoleCommands/SingleBotConsoleCommands.js";
 import * as GroupBotConsoleCommands from "./ConsoleCommands/GroupBotsConsoleCommands.js";
 
-let testBotName = "TestBot";
+let testBotNameOrGroupName = "TestBot";
 
-let isGroupTesting = false;
+let isGroupTesting = true;
 
 let isMonochrome = false;
 
 if (isGroupTesting === false) {
-  let isTestOnTrainingData = false;
+	let isTestOnTrainingData = false;
 
-  let totalEpochAmount = 1000;
-  let epochLogIteration = 10;
-  let dataGroupAmount = 20;
+	let totalEpochAmount = 1000;
+	let epochLogIteration = 10;
+	let dataGroupAmount = 20;
 
-  let amountOfHiddenLayers = 2;
-  let hiddenLayerActivationFunction = ActivationFunctions.GetRelu();
-  let outputLayerActivationFunction = ActivationFunctions.GetSigmoid();
+	let amountOfHiddenLayers = 2;
+	let hiddenLayerActivationFunction = ActivationFunctions.GetRelu();
+	let outputLayerActivationFunction = ActivationFunctions.GetSigmoid();
 
-  await SinlgeBotConsoleCommands.TrainNewThenRun(
-    testBotName,
-    isTestOnTrainingData,
-    totalEpochAmount,
-    epochLogIteration,
-    dataGroupAmount,
-    amountOfHiddenLayers,
-    hiddenLayerActivationFunction,
-    outputLayerActivationFunction,
-    isMonochrome,
-  );
+	await SinlgeBotConsoleCommands.TrainNewThenRun(
+		testBotNameOrGroupName,
+		isTestOnTrainingData,
+		totalEpochAmount,
+		epochLogIteration,
+		dataGroupAmount,
+		amountOfHiddenLayers,
+		hiddenLayerActivationFunction,
+		outputLayerActivationFunction,
+		isMonochrome,
+	);
 } else {
-  await GroupBotConsoleCommands.TrainingThenRun();
+	let amountOfBots = 2;
+	let amountOfHiddenLayers = 2;
+
+	let isDeleteBeforeTrain = true;
+
+	let isTestOnTrainingData = true;
+
+	await GroupBotConsoleCommands.RunGroupBots(
+		testBotNameOrGroupName,
+		amountOfBots,
+		amountOfHiddenLayers,
+		isMonochrome,
+		isDeleteBeforeTrain,
+		isTestOnTrainingData,
+	);
 }
 
 //#region Single Bot training

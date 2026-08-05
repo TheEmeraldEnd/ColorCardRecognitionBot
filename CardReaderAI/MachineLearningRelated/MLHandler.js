@@ -1,17 +1,17 @@
-import * as tf from '@tensorflow/tfjs';
-import * as DataComparer from '../DataRelated/DataComparer.js';
-import * as LogHandler from '../FileRelated/LogHandler.js';
-import * as ModelLoaderHandler from '../FileRelated/ModelLoaderHandler.js';
-import { DataHolder as DataHolder } from '../DataRelated/DataHolder.js';
-import * as MathFunctions from '../MathRelated/MathFunctions.js';
-import * as WeightRandomizer from './WeightRandomizer.js';
-import * as ActivationFunctionFunctions from './ActivationFunctions.js';
+import * as tf from "@tensorflow/tfjs";
+import * as DataComparer from "../DataRelated/DataComparer.js";
+import * as LogHandler from "../FileRelated/LogHandler.js";
+import * as ModelLoaderHandler from "../FileRelated/ModelLoaderHandler.js";
+import { DataHolder as DataHolder } from "../DataRelated/DataHolder.js";
+import * as MathFunctions from "../MathRelated/MathFunctions.js";
+import * as WeightRandomizer from "./WeightRandomizer.js";
+import * as ActivationFunctionFunctions from "./ActivationFunctions.js";
 
 export class ModelClass {
-	constructor(incomingName = '') {
+	constructor(incomingName = "") {
 		this.model = tf.sequential({ name: incomingName });
 		this.activationFunctions = [];
-		this.optimizer = '';
+		this.optimizer = "";
 		this.lastRecordedAccuracy = 0.0;
 	}
 
@@ -22,7 +22,7 @@ export class ModelClass {
 	AddLayerAfterInputLayer(
 		inputLayerNodes = 1,
 		nextLayerNodes = 1,
-		activationFunction = 'tanh',
+		activationFunction = "tanh",
 	) {
 		let nextLayer = tf.layers.dense({
 			inputShape: inputLayerNodes,
@@ -35,10 +35,10 @@ export class ModelClass {
 		this.activationFunctions.push(activationFunction);
 	}
 
-	AddLayer(nextLayerNodes = 1, activationFunction = '') {
+	AddLayer(nextLayerNodes = 1, activationFunction = "") {
 		let nextLayer = null;
 
-		if (activationFunction === '') {
+		if (activationFunction === "") {
 			nextLayer = tf.layers.dense({ units: nextLayerNodes });
 		} else {
 			nextLayer = tf.layers.dense({
@@ -55,8 +55,8 @@ export class ModelClass {
 		inputLayerNodes = 1,
 		hiddenLayerNodes = [],
 		outputNodeAmounts = 1,
-		hiddenLayerActivationFunction = 'tanh',
-		outputLayerActivationFunction = 'sigmoid',
+		hiddenLayerActivationFunction = "tanh",
+		outputLayerActivationFunction = "sigmoid",
 	) {
 		if (hiddenLayerNodes.length === 0) {
 			this.AddLayerAfterInputLayer(
@@ -101,8 +101,8 @@ export class ModelClass {
 	}
 
 	CompileMachine(
-		lossFunction = 'meanSquaredError',
-		icomingOptimizer = 'sgd',
+		lossFunction = "meanSquaredError",
+		icomingOptimizer = "sgd",
 	) {
 		this.model.compile({ optimizer: icomingOptimizer, loss: lossFunction });
 
@@ -111,8 +111,8 @@ export class ModelClass {
 		console.log(`Compilation for ${this.GetName()} is complete`);
 	}
 
-	SetActivationFunction(incomingActivationFunction = '', layerIndex = 0) {
-		if (incomingActivationFunction === '') {
+	SetActivationFunction(incomingActivationFunction = "", layerIndex = 0) {
+		if (incomingActivationFunction === "") {
 			incomingActivationFunction = ActivationFunctionFunctions.GetRelu();
 		}
 		this.activationFunctions[layerIndex] = incomingActivationFunction;
@@ -175,7 +175,7 @@ export class ModelClass {
 			return;
 		}
 
-		let incomingActivationFunction = '';
+		let incomingActivationFunction = "";
 
 		if (index === this.model.layers.length - 1) {
 			incomingActivationFunction =
@@ -246,7 +246,6 @@ export class ModelClass {
 			incomingPredictedLabels,
 			actualLabels,
 		);
-		console.log(this.lastRecordedAccuracy);
 		return this.lastRecordedAccuracy;
 	}
 
@@ -275,7 +274,7 @@ export class ModelClass {
 		ModelSaver.SaveModel(this);
 	}
 
-	static LoadModel(incomingModelName = '') {
+	static LoadModel(incomingModelName = "") {
 		return ModelLoader.LoadModel(incomingModelName);
 	}
 
@@ -439,7 +438,7 @@ export class ModelClass {
 		let secondActivationFunctions = incomingBot.activationFunctions;
 
 		for (let i = 0; i < firstActivationFunctions.length; i++) {
-			let tempActivation = '';
+			let tempActivation = "";
 
 			let randomChance = Math.random();
 
@@ -595,7 +594,7 @@ class ModelSaver {
 
 class ModelLoader {
 	//The reason for repeditive names is to make future optimization for not requiring variables easier to replace
-	static LoadModel(incomingModelName = '') {
+	static LoadModel(incomingModelName = "") {
 		//Guard against no model existing
 		if (!IsModelSaved(incomingModelName)) {
 			console.log(

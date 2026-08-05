@@ -18,129 +18,146 @@ import * as ActivationFunctions from "../MachineLearningRelated/ActivationFuncti
 
 import { DeleteGroupIfExists } from "../FileRelated/GroupLoaderHandler.js";
 
-export async function TrainingThenRun() {
-  let trainingHistograms = HistogramHandler.MonochromeClass.GetAllHistograms();
-  let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(
-    trainingHistograms,
-    OptionsHandler.GetOptionNames(),
-  );
-  let numberOfInputNodes = formattedTrainingData.GetLengthsOfRawColorArray();
-  let numberOfOutputNodes = formattedTrainingData.GetPossibleOptionsLength();
-  let totalHiddenNodes =
-    MLHandler.HiddenNodeRecommender.GetHiddenNodesBySimpleMethod(
-      numberOfInputNodes,
-      numberOfOutputNodes,
-    );
-  let hiddenLayerAmmount = 2;
-  let hiddenNodesPerLayer =
-    MLHandler.HiddenNodeRecommender.SetNumberOfHiddenNodesByLayer(
-      totalHiddenNodes,
-      hiddenLayerAmmount,
-    );
-  //#region Group training
-  let testGroupName = "AlotaBots";
-  let amountOfBotsTested = 10;
-  let botGroup = new MLGroupHandler.GroupMachineClass(
-    amountOfBotsTested,
-    testGroupName,
-  );
-  let hiddenActivationFunction = ActivationFunctions.GetRelu();
-  let finalActivationFunction = ActivationFunctions.GetSigmoid();
-  botGroup.ConfigureModel(
-    numberOfInputNodes,
-    hiddenNodesPerLayer,
-    numberOfOutputNodes,
-    hiddenActivationFunction,
-    finalActivationFunction,
-  );
-  botGroup.GetSummary();
-  botGroup.CompileMachines();
-  await botGroup.FitDataWithBatching(
-    formattedTrainingData.GetRawColorDataAsTensor(),
-    DataTranslator.BinaryTranslator.LabelsToIndexesTensor(
-      formattedTrainingData.GetLabelsAsArray(),
-      formattedTrainingData.GetOptionNames(),
-    ),
-    formattedTrainingData.GetOptionNames(),
-    20,
-    10,
-    5,
-  );
-  botGroup.GetSummary();
+export async function RunGroupBots(
+	incomingGroupName = "",
+	amountOfBots = 2,
+	amountOfHiddenLayers = 2,
+	isMonochrome = true,
+	isDeleteBeforeTrain = false,
+	isTestOnTrainingData = true,
+	amountOfGenerations = 0,
+) {
+	//#region Format the training and final data
+	let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(
+		isMonochrome
+			? HistogramHandler.MonochromeClass.GetAllHistograms()
+			: HistogramHandler.ColorfulClass.GetAllHistograms(),
+		OptionsHandler.GetOptionNames(),
+	);
 
-  //TODO: Set up predictiona and training testing
+	let formattedFinalData = DataHolder.DataHolder.InitializeNewDataHolder(
+		isMonochrome
+			? HistogramHandler.MonochromeTestingClass.GetAllHistograms()
+			: HistogramHandler.ColorfulTestingClasss.GetAllHistograms(),
+		OptionsHandler.GetOptionNames(),
+	);
+	//#endregion
 
-  //   let predictionTensor = botGroup.bots[0].predict(
-  //     formattedTrainingData.GetRawColorDataAsTensor(),
-  //   );
-  //   let predictedLabels = DataTranslator.BinaryTranslator.IndexesToLabels(
-  //     predictionTensor.arraySync(),
-  //     formattedTrainingData.GetOptionNames(),
-  //   );
-  //   let actualLabels = formattedTrainingData.GetLabelsAsArray();
-  //   botGroup.bots[0].LogAccuracy(predictedLabels, actualLabels);
-  //Get prediction tensors
-  let predictionTensors = botGroup.PredictAll(
-    formattedTrainingData.GetRawColorDataAsTensor(),
-  );
-  let predictedLabelses = [];
-  for (let i = 0; i < predictionTensors.length; i++) {
-    predictedLabelses.push(
-      DataTranslator.BinaryTranslator.IndexesToLabels(
-        predictionTensors[i].arraySync(),
-        formattedTrainingData.GetOptionNames(),
-      ),
-    );
-  }
-  let actualLabels = formattedTrainingData.GetLabelsAsArray();
-  //botGroup.PredictAllAndSort(predictedLabelses, actualLabels);
-  botGroup.SaveGroup();
-  botGroup = MLGroupHandler.GroupMachineClass.LoadGroup(testGroupName);
-  //#endregion
+	//#region Initialize starting information
+	let numberOfInputNodes = formattedTrainingData.GetLengthsOfRawColorArray();
+	let numberOfOutputNodes = formattedTrainingData.GetPossibleOptionsLength();
+	let totalHiddenNodes =
+		MLHandler.HiddenNodeRecommender.GetHiddenNodesBySimpleMethod(
+			numberOfInputNodes,
+			numberOfOutputNodes,
+		);
+	let hiddenNodesPerLayer =
+		MLHandler.HiddenNodeRecommender.SetNumberOfHiddenNodesByLayer(
+			totalHiddenNodes,
+			amountOfHiddenLayers,
+		);
+	//#endregion
 
-  function PredictOnFinalData(incomingModel, incomingFormattedFinalData) {
-    let rawTensorResult = incomingModel.predict(
-      incomingFormattedFinalData.GetRawColorDataAsTensor(),
-    );
+	//#region bot creation
+	if (isDeleteBeforeTrain) {
+		DeleteGroupIfExists(incomingGroupName);
+	}
 
-    rawTensorResult.print();
-    incomingFormattedFinalData.GetLabelsAsTensor().print();
+	let botGroup;
+	if (!MLGroupHandler.GroupMachineClass.IsGroupSaved(incomingGroupName)) {
+		botGroup = new MLGroupHandler.GroupMachineClass(
+			amountOfBots,
+			incomingGroupName,
+		);
+		let hiddenActivationFunction = ActivationFunctions.GetRelu();
+		let finalActivationFunction = ActivationFunctions.GetSigmoid();
+		botGroup.ConfigureModel(
+			numberOfInputNodes,
+			hiddenNodesPerLayer,
+			numberOfOutputNodes,
+			hiddenActivationFunction,
+			finalActivationFunction,
+		);
+		botGroup.CompileMachines();
+	} else {
+		botgroup =
+			MLGroupHandler.GroupMachineClass.LoadGroup(incomingGroupName);
+	}
+	//#endregion
 
-    let rawArrayResult = rawTensorResult.dataSync();
+	//#region ways to train
 
-    let result = DataTranslator.BinaryTranslator.IndexesToLabels(
-      rawTensorResult.arraySync(),
-      incomingFormattedFinalData.GetOptionNames(),
-    );
+	if (amountOfGenerations <= 0) {
+		await botGroup.FitDataWithBatching(
+			formattedTrainingData.GetRawColorDataAsTensor(),
+			DataTranslator.BinaryTranslator.LabelsToIndexesTensor(
+				formattedTrainingData.GetLabelsAsArray(),
+				formattedTrainingData.GetOptionNames(),
+			),
+			formattedTrainingData.GetOptionNames(),
+			20,
+			10,
+			5,
+		);
+	} else {
+	}
 
-    DataComparer.CompareLabels(
-      result,
-      incomingFormattedFinalData.GetLabelsAsArray(),
-    );
-  }
+	//#endregion
 
-  function PredictOnTrainingData(incomingGroup, formattedTrainingData) {
-    let rawTensorResult = incomingGroup.PredictAll();
+	//#region Prediction stuff
+	//Finish when possible
+	function predictOnFinalData(incomingGroup, formattedFinalData) {
+		let rawTensorsAsArrayResult = incomingGroup.predictAll(
+			formattedFinalData.GetRawColorDataAsTensor(),
+		);
 
-    // let rawTensorResult = incomingModel.predict(
-    //   formattedTrainingData.GetRawColorDataAsTensor(),
-    // );
-    // rawTensorResult.print();
-    // formattedTrainingData.GetLabelsAsTensor().print();
+		let predictedLabelsMatrix = [];
+		for (let i = 0; i < rawTensorsAsArrayResult.length; i++) {
+			let labels = DataTranslator.BinaryTranslator.IndexesToLabels(
+				rawTensorsAsArrayResult[i].arraySync(),
+				OptionsHandler.GetOptionNames(),
+			);
+			predictedLabelsMatrix.push(labels);
+		}
 
-    // let rawArrayResult = rawTensorResult.dataSync();
+		let actualLabels = formattedFinalData.GetLabelsAsArray();
 
-    // let result = DataTranslator.BinaryTranslator.IndexesToLabels(
-    //   rawTensorResult.arraySync(),
-    //   formattedTrainingData.GetOptionNames(),
-    // );
+		incomingGroup.SortAll(predictedLabelsMatrix, actualLabels);
+	}
 
-    // DataComparer.CompareLabels(
-    //   result,
-    //   formattedTrainingData.GetLabelsAsArray(),
-    // );
-  }
+	function PredictOnTrainingData(incomingGroup, formattedTrainingData) {
+		let rawTensorsAsArrayResult = incomingGroup.predictAll(
+			formattedTrainingData.GetRawColorDataAsTensor(),
+		);
+
+		let predictedLabelsMatrix = [];
+		for (let i = 0; i < rawTensorsAsArrayResult.length; i++) {
+			let labels = DataTranslator.BinaryTranslator.IndexesToLabels(
+				rawTensorsAsArrayResult[i].arraySync(),
+				OptionsHandler.GetOptionNames(),
+			);
+			predictedLabelsMatrix.push(labels);
+		}
+
+		let actualLabels = formattedTrainingData.GetLabelsAsArray();
+
+		incomingGroup.SortAll(predictedLabelsMatrix, actualLabels);
+	}
+
+	if (isTestOnTrainingData) {
+		PredictOnTrainingData(botGroup, formattedTrainingData);
+	} else {
+		predictOnFinalData(botGroup, formattedFinalData);
+	}
+
+	//#endregion
+
+	//#region Print last known accuracies
+	botGroup.PrintLastKnownAccuraciesAndInfo();
+	//#endregion
 }
+
+async function RunLearningLoop() {}
 
 export async function RunGenerational() {}
 
