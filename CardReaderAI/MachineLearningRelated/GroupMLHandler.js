@@ -5,6 +5,9 @@ import * as MathExtension from "../MathRelated/MathFunctions.js";
 import * as ActivationFunctions from "./ActivationFunctions.js";
 import * as GroupLoaderHandler from "../FileRelated/GroupLoaderHandler.js";
 import { clone } from "@tensorflow/tfjs";
+import { BinaryTranslator } from "../DataRelated/DataTranslator.js";
+import { GetOptionNames } from "../FileRelated/optionHandler.js";
+import { DataHolder } from "../DataRelated/DataHolder.js";
 
 //Note that highest value accuracy bots should be at the right of array while lowest are beginning
 export class GroupMachineClass {
@@ -94,10 +97,12 @@ export class GroupMachineClass {
 		}
 	}
 
-	predictAll(incomingRawColorData) {
+	predictAll(incomingRawColorDataAsTensor) {
 		let predictionResults = [];
 		for (let i = 0; i < this.bots.length; i++) {
-			let predictionString = this.bots[i].predict(incomingRawColorData);
+			let predictionString = this.bots[i].predict(
+				incomingRawColorDataAsTensor,
+			);
 			predictionResults.push(predictionString);
 		}
 
@@ -497,9 +502,72 @@ export class GroupMachineClass {
 		return newGroupOfBots;
 	}
 
-	//Need to get this functioning with a loop and comparison with incoming data
-	RunThroughOneGeneration(
-		incomingAmountOfGeneration = 1,
-		isElitism = false,
-	) {}
+	//Run through genetics (the ultimate function that's been worked for)
+	//TODO: Need to test
+	async RunThroughGeneticGenerations(
+		incomingFormattedData,
+		mutationChance = 0.1,
+		mutationVariation = 0.1,
+		isDeleteLowest = false,
+		isCrossover = false,
+		evaluationCacheAmount = 10,
+	) {
+		//TODO: Figure out how to devide into loop amount
+		let loopAmount = incomingFormattedData.GerLabelsAsArray().length;
+		let lastKnownCacheIndex = 0;
+
+		for (let i = 0; i < loopAmount; i++) {
+			//Trigger once data cache reaches amount
+			if (i - lastKnownCacheIndex >= evaluationCacheAmount) {
+				//TODO: Prediction to be done
+				let formattedData = new DataHolder(
+					incomingFormattedData
+						.GetRawColorDataAsArray()
+						.splice(lastKnownCacheIndex, i),
+					incomingFormattedData
+						.GetLabelsAsArray()
+						.splice(lastKnownCacheIndex, i),
+					GetOptionNames(),
+				);
+
+				//FInd prediction labels for the result
+				let rawResultIndexes = this.predictAll(
+					formattedData.GetRawColorDataAsTensor(),
+				);
+				let resultLabels = rawResultIndexes.map((r) =>
+					BinaryTranslator.IndexesToLabels(r),
+				);
+
+				//sort the remaining
+				this.SortAll(resultLabels, formattedData.GetLabelsAsArray());
+
+				//Delete half based on incoming
+				if (isDeleteLowest === true) {
+					this.DeleteHalfLowest();
+				} else {
+					this.DeleteHalfRandom();
+				}
+
+				//Trigger refill for mutation
+				if (isCrossover) {
+					this.CrossoverToFill(
+						false,
+						true,
+						mutationVariation,
+						mutationChance,
+					);
+				} else {
+					this.MutateToFill(mutationVariation, mutationChance);
+				}
+
+				//Reset cache
+				lastKnownCacheIndex = i;
+			}
+
+			console.log(
+				`${this.GetName()} group accuracy: ${this.GetGroupAverageAccuracy()}`,
+			);
+			this.PrintLastKnownAccuraciesAndInfo();
+		}
+	}
 }

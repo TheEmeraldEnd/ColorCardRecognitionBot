@@ -100,6 +100,14 @@ export async function RunGroupBots(
 			5,
 		);
 	} else {
+		await botGroup.RunThroughGeneticGenerations(
+			formattedTrainingData,
+			0.1,
+			0.1,
+			true,
+			false,
+			10,
+		);
 	}
 
 	//#endregion

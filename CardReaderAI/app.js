@@ -19,6 +19,10 @@ import * as ActivationFunctions from "./MachineLearningRelated/ActivationFunctio
 import * as SinlgeBotConsoleCommands from "./ConsoleCommands/SingleBotConsoleCommands.js";
 import * as GroupBotConsoleCommands from "./ConsoleCommands/GroupBotsConsoleCommands.js";
 
+/* TODO: NEED TO TEST botGroup.RunThroughGeneticGenerations
+ on line 103 in GroupBotsConsoleCommands.js.
+ */
+
 let testBotNameOrGroupName = "TestBot";
 
 let isGroupTesting = true;
@@ -55,6 +59,8 @@ if (isGroupTesting === false) {
 
 	let isTestOnTrainingData = true;
 
+	let amountOfGenerations = 2;
+
 	await GroupBotConsoleCommands.RunGroupBots(
 		testBotNameOrGroupName,
 		amountOfBots,
@@ -62,6 +68,7 @@ if (isGroupTesting === false) {
 		isMonochrome,
 		isDeleteBeforeTrain,
 		isTestOnTrainingData,
+		amountOfGenerations,
 	);
 }
 

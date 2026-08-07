@@ -144,7 +144,7 @@ export class ModelClass {
 		for (let i = 0; i < this.model.layers.length; i++) {
 			this.RandomizeLayerActivation(i, maxMutationChance, isFinalLimited);
 		}
-
+		console.log("thing");
 		if (isHiddenSame == false || this.model.layers.length < 2) {
 			return;
 		}
