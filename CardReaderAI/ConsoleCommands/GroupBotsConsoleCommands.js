@@ -25,7 +25,16 @@ export async function RunGroupBots(
 	isMonochrome = true,
 	isDeleteBeforeTrain = false,
 	isTestOnTrainingData = true,
-	amountOfGenerations = 0,
+	evaluationCacheAmount = 10,
+	totalEpochAmount = 20,
+	epochLogIteration = 10,
+	dataGroupAmount = 5,
+	isDeleteLowest = true,
+	isApplyCrossover = false,
+	mutationChance = 0.1,
+	mutationVariation = 0.1,
+	hiddenLayerActivationFunction = ActivationFunctions.GetRelu(),
+	outputLayerActivationFunction = ActivationFunctions.GetSigmoid(),
 ) {
 	//#region Format the training and final data
 	let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(
@@ -69,14 +78,12 @@ export async function RunGroupBots(
 			amountOfBots,
 			incomingGroupName,
 		);
-		let hiddenActivationFunction = ActivationFunctions.GetRelu();
-		let finalActivationFunction = ActivationFunctions.GetSigmoid();
 		botGroup.ConfigureModel(
 			numberOfInputNodes,
 			hiddenNodesPerLayer,
 			numberOfOutputNodes,
-			hiddenActivationFunction,
-			finalActivationFunction,
+			hiddenLayerActivationFunction,
+			outputLayerActivationFunction,
 		);
 		botGroup.CompileMachines();
 	} else {
@@ -87,7 +94,7 @@ export async function RunGroupBots(
 
 	//#region ways to train
 
-	if (amountOfGenerations <= 0) {
+	if (evaluationCacheAmount <= 0) {
 		await botGroup.FitDataWithBatching(
 			formattedTrainingData.GetRawColorDataAsTensor(),
 			DataTranslator.BinaryTranslator.LabelsToIndexesTensor(
@@ -95,21 +102,20 @@ export async function RunGroupBots(
 				formattedTrainingData.GetOptionNames(),
 			),
 			formattedTrainingData.GetOptionNames(),
-			20,
-			10,
-			5,
+			totalEpochAmount,
+			epochLogIteration,
+			dataGroupAmount,
 		);
 	} else {
 		await botGroup.RunThroughGeneticGenerations(
 			formattedTrainingData,
-			0.1,
-			0.1,
-			true,
-			false,
-			10,
+			mutationChance,
+			mutationVariation,
+			isDeleteLowest,
+			isApplyCrossover,
+			evaluationCacheAmount,
 		);
 	}
-
 	//#endregion
 
 	//#region Prediction stuff
@@ -161,14 +167,15 @@ export async function RunGroupBots(
 	//#endregion
 
 	//#region Print last known accuracies
+	console.log("___FINAL_RESULTS_____");
 	botGroup.PrintLastKnownAccuraciesAndInfo();
+	console.log(
+		`Final average accuracy: ${botGroup.GetGroupAverageAccuracy() * 100}%`,
+	);
+	console.log(
+		`Top Bot Accuracy: ${botGroup.bots[botGroup.bots.length - 1].lastRecordedAccuracy * 100}%`,
+	);
 	//#endregion
+
+	botGroup.SaveGroup();
 }
-
-async function RunLearningLoop() {}
-
-export async function RunGenerational() {}
-
-export async function RunSteadyGenerational() {}
-
-export async function RunLearningGenerational() {}

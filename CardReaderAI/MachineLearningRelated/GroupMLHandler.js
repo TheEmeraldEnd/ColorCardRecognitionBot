@@ -339,7 +339,7 @@ export class GroupMachineClass {
 				);
 			}
 
-			botsToClone.push();
+			botsToClone.push(indexToClone);
 		}
 
 		//Generate the clones
@@ -513,7 +513,7 @@ export class GroupMachineClass {
 		evaluationCacheAmount = 10,
 	) {
 		//TODO: Figure out how to devide into loop amount
-		let loopAmount = incomingFormattedData.GerLabelsAsArray().length;
+		let loopAmount = incomingFormattedData.GetLabelsAsArray().length;
 		let lastKnownCacheIndex = 0;
 
 		for (let i = 0; i < loopAmount; i++) {
@@ -523,20 +523,27 @@ export class GroupMachineClass {
 				let formattedData = new DataHolder(
 					incomingFormattedData
 						.GetRawColorDataAsArray()
-						.splice(lastKnownCacheIndex, i),
+						.slice(lastKnownCacheIndex, i),
 					incomingFormattedData
 						.GetLabelsAsArray()
-						.splice(lastKnownCacheIndex, i),
+						.slice(lastKnownCacheIndex, i),
 					GetOptionNames(),
 				);
 
 				//FInd prediction labels for the result
+				//A numerical value of array of tensors correlating to each bots prediction
 				let rawResultIndexes = this.predictAll(
 					formattedData.GetRawColorDataAsTensor(),
 				);
-				let resultLabels = rawResultIndexes.map((r) =>
-					BinaryTranslator.IndexesToLabels(r),
-				);
+
+				let resultLabels = rawResultIndexes.map((r) => {
+					let oneBotsRawResult = r.arraySync();
+					let predictionResults = BinaryTranslator.IndexesToLabels(
+						oneBotsRawResult,
+						GetOptionNames(),
+					);
+					return predictionResults;
+				});
 
 				//sort the remaining
 				this.SortAll(resultLabels, formattedData.GetLabelsAsArray());
@@ -567,6 +574,7 @@ export class GroupMachineClass {
 			console.log(
 				`${this.GetName()} group accuracy: ${this.GetGroupAverageAccuracy()}`,
 			);
+
 			this.PrintLastKnownAccuraciesAndInfo();
 		}
 	}

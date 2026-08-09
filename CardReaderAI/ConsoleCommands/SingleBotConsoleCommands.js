@@ -58,6 +58,7 @@ export async function TrainThenRun(
 	hiddenLayerActivationFunction = ActivationFunctions.GetRelu(),
 	outputLayerActivationFunction = ActivationFunctions.GetSigmoid(),
 	isMonochrome = true,
+	isDeleteBeforeRun = false,
 ) {
 	let trainingHistograms =
 		isMonochrome === true
@@ -85,6 +86,10 @@ export async function TrainThenRun(
 		);
 
 	let newModel;
+
+	if (isDeleteBeforeRun === true) {
+		await DeleteIfExists(botName);
+	}
 
 	if (!MLHandler.IsModelSaved(botName)) {
 		newModel = new MLHandler.ModelClass(botName);

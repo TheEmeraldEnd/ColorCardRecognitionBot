@@ -69,7 +69,7 @@ export class DataHolder {
 	}
 
 	GetRawColorDataAsArray() {
-		return this.colorArray;
+		return this.rawDataColorArray;
 	}
 
 	GetLabelsAsTensor() {
