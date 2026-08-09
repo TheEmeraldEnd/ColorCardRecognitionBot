@@ -1,31 +1,34 @@
-import * as ActivationFunctions from "./MachineLearningRelated/ActivationFunctions.js";
-import * as Presets from "./ConsoleCommands/Presets.js";
+import * as ActivationFunctions from './MachineLearningRelated/ActivationFunctions.js';
+import * as Presets from './ConsoleCommands/Presets.js';
 
-import * as SinlgeBotConsoleCommands from "./ConsoleCommands/SingleBotConsoleCommands.js";
-import * as GroupBotConsoleCommands from "./ConsoleCommands/GroupBotsConsoleCommands.js";
+import * as SinlgeBotConsoleCommands from './ConsoleCommands/SingleBotConsoleCommands.js';
+import * as GroupBotConsoleCommands from './ConsoleCommands/GroupBotsConsoleCommands.js';
 
-let testBotNameOrGroupName = "TestBot";
+//Don't use crossover (doesn't work)
+const PRESET = Presets.DEFAULT_PRESETS.GROUP_MUTATION_ONLY_OVERFIT;
 
-let isGroupTesting = true;
+let nameOrGroupName = PRESET.GetName();
 
-let isMonochrome = false;
+let isGroupTesting = PRESET.GetIsGroupTest();
 
-let isDeleteBeforeRun = true;
+let isMonochrome = PRESET.GetIsMonochrome();
 
-let totalEpochAmount = 1000;
-let epochLogIteration = 10;
-let dataGroupAmount = 20;
+let isDeleteBeforeRun = PRESET.GetIsDeleteBeforeRun();
 
-let hiddenLayerActivationFunction = ActivationFunctions.GetRelu();
-let outputLayerActivationFunction = ActivationFunctions.GetSigmoid();
+let totalEpochAmount = PRESET.GetTotalEpochAmount();
+let epochLogIteration = PRESET.GetEpochLogIteration();
+let dataGroupAmount = PRESET.GetDataGroupAmount();
+
+let hiddenLayerActivationFunction = PRESET.GetHiddenActivation();
+let outputLayerActivationFunction = PRESET.GetOutputActivation();
+
+let isTestOnTrainingData = PRESET.GetIsTestOnTrainingData();
+
+let amountOfHiddenLayers = PRESET.GetAmountOfBots();
 
 if (isGroupTesting === false) {
-	let isTestOnTrainingData = false;
-
-	let amountOfHiddenLayers = 2;
-
 	await SinlgeBotConsoleCommands.TrainThenRun(
-		testBotNameOrGroupName,
+		nameOrGroupName,
 		isTestOnTrainingData,
 		totalEpochAmount,
 		epochLogIteration,
@@ -37,21 +40,18 @@ if (isGroupTesting === false) {
 		isDeleteBeforeRun,
 	);
 } else {
-	let amountOfBots = 2;
-	let amountOfHiddenLayers = 2;
+	let amountOfBots = PRESET.GetAmountOfBots();
 
-	let isTestOnTrainingData = false;
+	let evaluationCacheAmount = PRESET.GetEvalCacheAmount();
 
-	let evaluationCacheAmount = 2;
+	let isDeleteLowest = PRESET.GetIsDeleteLowest();
+	let isApplyCrossover = PRESET.GetIsApplyCrossover();
 
-	let isDeleteLowest = true;
-	let isApplyCrossover = false;
-
-	let mutationChance = 0.1;
-	let mutationVariation = 0.1;
+	let mutationChance = PRESET.GetMutationChance();
+	let mutationVariation = PRESET.GetMutationVariation();
 
 	await GroupBotConsoleCommands.RunGroupBots(
-		testBotNameOrGroupName,
+		nameOrGroupName,
 		amountOfBots,
 		amountOfHiddenLayers,
 		isMonochrome,

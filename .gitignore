@@ -9,3 +9,5 @@
 *.log
 DataPrepper/.vs
 CardReaderAI/.vs
+
+/DataRelated/

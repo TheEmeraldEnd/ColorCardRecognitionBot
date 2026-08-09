@@ -1,17 +1,18 @@
-import * as MLHandler from "../MachineLearningRelated/MLHandler.js";
-import * as DataComparer from "../DataRelated/DataComparer.js";
-import * as WeightRandomizer from "./WeightRandomizer.js";
-import * as MathExtension from "../MathRelated/MathFunctions.js";
-import * as ActivationFunctions from "./ActivationFunctions.js";
-import * as GroupLoaderHandler from "../FileRelated/GroupLoaderHandler.js";
-import { clone } from "@tensorflow/tfjs";
-import { BinaryTranslator } from "../DataRelated/DataTranslator.js";
-import { GetOptionNames } from "../FileRelated/optionHandler.js";
-import { DataHolder } from "../DataRelated/DataHolder.js";
+import * as MLHandler from '../MachineLearningRelated/MLHandler.js';
+import * as DataComparer from '../DataRelated/DataComparer.js';
+import * as WeightRandomizer from './WeightRandomizer.js';
+import * as MathExtension from '../MathRelated/MathFunctions.js';
+import * as ActivationFunctions from './ActivationFunctions.js';
+import * as GroupLoaderHandler from '../FileRelated/GroupLoaderHandler.js';
+import { clone } from '@tensorflow/tfjs';
+import { BinaryTranslator } from '../DataRelated/DataTranslator.js';
+import { GetOptionNames } from '../FileRelated/optionHandler.js';
+import { DataHolder } from '../DataRelated/DataHolder.js';
+import { SaveGroupAccuracyLog } from '../FileRelated/LogHandler.js';
 
 //Note that highest value accuracy bots should be at the right of array while lowest are beginning
 export class GroupMachineClass {
-	constructor(amountOfBots = 1, groupName = "") {
+	constructor(amountOfBots = 1, groupName = '') {
 		//Guard against non-positive intagers
 		if (amountOfBots <= 0) {
 			amountOfBots = 1;
@@ -35,7 +36,7 @@ export class GroupMachineClass {
 	AddLayerAfterInputLayer(
 		inputLayerNodes = 1,
 		nextLayerNodes = 1,
-		activationFunction = "tanh",
+		activationFunction = 'tanh',
 	) {
 		this.bots.map((b) =>
 			b.AddLayerAfterInputLayer(
@@ -46,7 +47,7 @@ export class GroupMachineClass {
 		);
 	}
 
-	AddLayer(nextLayerNodes = 1, activationFunction = "") {
+	AddLayer(nextLayerNodes = 1, activationFunction = '') {
 		this.bots.map((b) => b.AddLayer(nextLayerNodes, activationFunction));
 	}
 
@@ -54,8 +55,8 @@ export class GroupMachineClass {
 		inputLayerNodes = 1,
 		hiddenLayerNodes = [],
 		outputNodeAmounts = 1,
-		hiddenLayerActivationFunction = "tanh",
-		outputLayerActivationFunction = "sigmoid",
+		hiddenLayerActivationFunction = 'tanh',
+		outputLayerActivationFunction = 'sigmoid',
 	) {
 		this.bots.map((b) =>
 			b.ConfigureModel(
@@ -73,8 +74,8 @@ export class GroupMachineClass {
 	}
 
 	CompileMachines(
-		lossFunction = "meanSquaredError",
-		icomingOptimizer = "sgd",
+		lossFunction = 'meanSquaredError',
+		icomingOptimizer = 'sgd',
 	) {
 		this.bots.map((b) => b.CompileMachine(lossFunction, icomingOptimizer));
 	}
@@ -165,7 +166,7 @@ export class GroupMachineClass {
 	) {
 		//Guard against bot index bounds
 		if (botIndex < 0 || botIndex > this.bots.length) {
-			console.log("Please enter in a valid bot index");
+			console.log('Please enter in a valid bot index');
 		}
 
 		this.bots[botIndex].RandomizeAllLayersActivations(
@@ -430,7 +431,7 @@ export class GroupMachineClass {
 
 	async SaveModel() {}
 
-	static LoadModel(incomingModelName = "") {}
+	static LoadModel(incomingModelName = '') {}
 
 	async FitDataWithBatching(
 		inputData,
@@ -459,7 +460,7 @@ export class GroupMachineClass {
 		return;
 	}
 
-	AddNewBot(incomingName = "") {
+	AddNewBot(incomingName = '') {
 		let tempMachineLearner = new MLHandler.ModelClass(incomingName);
 		this.bots.push(tempMachineLearner);
 	}
@@ -482,8 +483,8 @@ export class GroupMachineClass {
 		GroupLoaderHandler.SaveGroup(this.groupName, stringifiedBots);
 	}
 
-	static LoadGroup(incomingBotGroupName = "") {
-		if (incomingBotGroupName === "") {
+	static LoadGroup(incomingBotGroupName = '') {
+		if (incomingBotGroupName === '') {
 			return new GroupMachineClass();
 		}
 		let dataJSON = GroupLoaderHandler.LoadGroupJSON(incomingBotGroupName);
@@ -577,5 +578,23 @@ export class GroupMachineClass {
 
 			this.PrintLastKnownAccuraciesAndInfo();
 		}
+	}
+
+	GetResultsStringFromLastTest() {
+		let nameString = `Name: ${this.GetName()}`;
+		let dateString = `Date: ${new Date().toLocaleString()}`;
+		let averageAccuracy = `Last known group Accuracy = ${this.GetGroupAverageAccuracy() * 100}%`;
+		let topBotResult = `Top Bot performance = ${this.bots[this.bots.length - 1].lastRecordedAccuracy * 100}%`;
+
+		let resultString = `${nameString}\n${dateString}\n${averageAccuracy}\n${topBotResult}`;
+
+		return resultString;
+	}
+
+	LogLastResult() {
+		SaveGroupAccuracyLog(
+			this.GetName(),
+			this.GetResultsStringFromLastTest(),
+		);
 	}
 }

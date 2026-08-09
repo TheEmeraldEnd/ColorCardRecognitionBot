@@ -1,25 +1,28 @@
-import * as FileHandler from "../FileRelated/FileHandler.js";
-import * as HistogramHandler from "../FileRelated/histogramHandler.js";
-import * as OptionsHandler from "../FileRelated/optionHandler.js";
+import * as FileHandler from '../FileRelated/FileHandler.js';
+import * as HistogramHandler from '../FileRelated/histogramHandler.js';
+import * as OptionsHandler from '../FileRelated/optionHandler.js';
 
-import * as MLHandler from "../MachineLearningRelated/MLHandler.js";
-import * as tf from "@tensorflow/tfjs";
+import * as MLHandler from '../MachineLearningRelated/MLHandler.js';
+import * as tf from '@tensorflow/tfjs';
 
-import * as DataHolder from "../DataRelated/DataHolder.js";
-import * as DataTranslator from "../DataRelated/DataTranslator.js";
-import * as DataComparer from "../DataRelated/DataComparer.js";
+import * as DataHolder from '../DataRelated/DataHolder.js';
+import * as DataTranslator from '../DataRelated/DataTranslator.js';
+import * as DataComparer from '../DataRelated/DataComparer.js';
 
-import * as MathExtension from "../MathRelated/MathFunctions.js";
+import * as MathExtension from '../MathRelated/MathFunctions.js';
 
-import * as MLGroupHandler from "../MachineLearningRelated/GroupMLHandler.js";
+import * as MLGroupHandler from '../MachineLearningRelated/GroupMLHandler.js';
 
-import * as WeightRandomizer from "../MachineLearningRelated/WeightRandomizer.js";
-import * as ActivationFunctions from "../MachineLearningRelated/ActivationFunctions.js";
+import * as WeightRandomizer from '../MachineLearningRelated/WeightRandomizer.js';
+import * as ActivationFunctions from '../MachineLearningRelated/ActivationFunctions.js';
 
-import { DeleteGroupIfExists } from "../FileRelated/GroupLoaderHandler.js";
+import {
+	DeleteGroupIfExists,
+	IsGroupSaved,
+} from '../FileRelated/GroupLoaderHandler.js';
 
 export async function RunGroupBots(
-	incomingGroupName = "",
+	incomingGroupName = '',
 	amountOfBots = 2,
 	amountOfHiddenLayers = 2,
 	isMonochrome = true,
@@ -38,16 +41,16 @@ export async function RunGroupBots(
 ) {
 	//#region Format the training and final data
 	let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(
-		isMonochrome
-			? HistogramHandler.MonochromeClass.GetAllHistograms()
-			: HistogramHandler.ColorfulClass.GetAllHistograms(),
+		isMonochrome ?
+			HistogramHandler.MonochromeClass.GetAllHistograms()
+		:	HistogramHandler.ColorfulClass.GetAllHistograms(),
 		OptionsHandler.GetOptionNames(),
 	);
 
 	let formattedFinalData = DataHolder.DataHolder.InitializeNewDataHolder(
-		isMonochrome
-			? HistogramHandler.MonochromeTestingClass.GetAllHistograms()
-			: HistogramHandler.ColorfulTestingClasss.GetAllHistograms(),
+		isMonochrome ?
+			HistogramHandler.MonochromeTestingClass.GetAllHistograms()
+		:	HistogramHandler.ColorfulTestingClasss.GetAllHistograms(),
 		OptionsHandler.GetOptionNames(),
 	);
 	//#endregion
@@ -73,7 +76,10 @@ export async function RunGroupBots(
 	}
 
 	let botGroup;
-	if (!MLGroupHandler.GroupMachineClass.IsGroupSaved(incomingGroupName)) {
+	if (MLGroupHandler.GroupMachineClass.IsGroupSaved(incomingGroupName)) {
+		botgroup =
+			MLGroupHandler.GroupMachineClass.LoadGroup(incomingGroupName);
+	} else {
 		botGroup = new MLGroupHandler.GroupMachineClass(
 			amountOfBots,
 			incomingGroupName,
@@ -86,9 +92,6 @@ export async function RunGroupBots(
 			outputLayerActivationFunction,
 		);
 		botGroup.CompileMachines();
-	} else {
-		botgroup =
-			MLGroupHandler.GroupMachineClass.LoadGroup(incomingGroupName);
 	}
 	//#endregion
 
@@ -167,14 +170,14 @@ export async function RunGroupBots(
 	//#endregion
 
 	//#region Print last known accuracies
-	console.log("___FINAL_RESULTS_____");
+	console.log('___FINAL_RESULTS_____');
 	botGroup.PrintLastKnownAccuraciesAndInfo();
-	console.log(
-		`Final average accuracy: ${botGroup.GetGroupAverageAccuracy() * 100}%`,
-	);
-	console.log(
-		`Top Bot Accuracy: ${botGroup.bots[botGroup.bots.length - 1].lastRecordedAccuracy * 100}%`,
-	);
+	console.log(botGroup.GetResultsStringFromLastTest());
+
+	if (!isTestOnTrainingData) {
+		console.log('EXPOSE');
+		botGroup.LogLastResult();
+	}
 	//#endregion
 
 	botGroup.SaveGroup();

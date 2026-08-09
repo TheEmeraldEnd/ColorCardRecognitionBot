@@ -1,29 +1,29 @@
-import * as FileHandler from "../FileRelated/fileHandler.js";
-import * as HistogramHandler from "../FileRelated/histogramHandler.js";
-import * as OptionsHandler from "../FileRelated/optionHandler.js";
+import * as FileHandler from '../FileRelated/fileHandler.js';
+import * as HistogramHandler from '../FileRelated/histogramHandler.js';
+import * as OptionsHandler from '../FileRelated/optionHandler.js';
 
-import * as MLHandler from "../MachineLearningRelated/MLHandler.js";
-import * as tf from "@tensorflow/tfjs";
+import * as MLHandler from '../MachineLearningRelated/MLHandler.js';
+import * as tf from '@tensorflow/tfjs';
 
-import * as DataHolder from "../DataRelated/DataHolder.js";
-import * as DataTranslator from "../DataRelated/DataTranslator.js";
-import * as DataComparer from "../DataRelated/DataComparer.js";
+import * as DataHolder from '../DataRelated/DataHolder.js';
+import * as DataTranslator from '../DataRelated/DataTranslator.js';
+import * as DataComparer from '../DataRelated/DataComparer.js';
 
-import * as MathExtension from "../MathRelated/MathFunctions.js";
+import * as MathExtension from '../MathRelated/MathFunctions.js';
 
-import * as MLGroupHandler from "../MachineLearningRelated/MLHandler.js";
+import * as MLGroupHandler from '../MachineLearningRelated/MLHandler.js';
 
-import * as WeightRandomizer from "../MachineLearningRelated/WeightRandomizer.js";
-import * as ActivationFunctions from "../MachineLearningRelated/ActivationFunctions.js";
+import * as WeightRandomizer from '../MachineLearningRelated/WeightRandomizer.js';
+import * as ActivationFunctions from '../MachineLearningRelated/ActivationFunctions.js';
 
-import * as ModelLoaderHandler from "../FileRelated/ModelLoaderHandler.js";
+import * as ModelLoaderHandler from '../FileRelated/ModelLoaderHandler.js';
 
-export async function DeleteIfExists(botName = "default") {
+export async function DeleteIfExists(botName = 'default') {
 	ModelLoaderHandler.DeleteBotIfExists(botName);
 }
 
 export async function TrainNewThenRun(
-	botName = "default",
+	botName = 'default',
 	isTestOnTrainingData = true,
 	totalEpochAmount = 20,
 	epochLogIteration = 10,
@@ -49,7 +49,7 @@ export async function TrainNewThenRun(
 
 //Make a function to run a single machine through a defined amount of iterations.
 export async function TrainThenRun(
-	botName = "default",
+	botName = 'default',
 	isTestOnTrainingData = true,
 	totalEpochAmount = 20,
 	epochLogIteration = 10,
@@ -61,9 +61,9 @@ export async function TrainThenRun(
 	isDeleteBeforeRun = false,
 ) {
 	let trainingHistograms =
-		isMonochrome === true
-			? HistogramHandler.MonochromeClass.GetAllHistograms()
-			: HistogramHandler.ColorfulClass.GetAllHistograms();
+		isMonochrome === true ?
+			HistogramHandler.MonochromeClass.GetAllHistograms()
+		:	HistogramHandler.ColorfulClass.GetAllHistograms();
 
 	let formattedTrainingData = DataHolder.DataHolder.InitializeNewDataHolder(
 		trainingHistograms,
@@ -102,7 +102,7 @@ export async function TrainThenRun(
 			outputLayerActivationFunction,
 		);
 
-		newModel.CompileMachine("meanSquaredError", "sgd");
+		newModel.CompileMachine('meanSquaredError', 'sgd');
 	} else {
 		newModel = MLHandler.ModelClass.LoadModel(botName);
 	}
@@ -121,9 +121,9 @@ export async function TrainThenRun(
 	newModel.GetSummary();
 
 	let finalDataHistograms =
-		isMonochrome === true
-			? HistogramHandler.MonochromeTestingClass.GetAllHistograms()
-			: HistogramHandler.ColorfulTestingClasss.GetAllHistograms();
+		isMonochrome === true ?
+			HistogramHandler.MonochromeTestingClass.GetAllHistograms()
+		:	HistogramHandler.ColorfulTestingClasss.GetAllHistograms();
 
 	let formattedFinalData = DataHolder.DataHolder.InitializeNewDataHolder(
 		finalDataHistograms,
@@ -134,6 +134,7 @@ export async function TrainThenRun(
 		PredictOnTrainingData(newModel, formattedTrainingData);
 	} else {
 		PredictOnFinalData(newModel, formattedFinalData);
+		newModel.LogLastRecordedAccuracy();
 	}
 
 	await newModel.SaveModel();
