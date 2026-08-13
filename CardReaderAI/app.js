@@ -5,7 +5,7 @@ import * as SinlgeBotConsoleCommands from './ConsoleCommands/SingleBotConsoleCom
 import * as GroupBotConsoleCommands from './ConsoleCommands/GroupBotsConsoleCommands.js';
 
 //Don't use crossover (doesn't work)
-const PRESET = Presets.DEFAULT_PRESETS.GROUP_MUTATION_ONLY_OVERFIT;
+const PRESET = Presets.DEFAULT_PRESETS.SINGLE_FINAL_TEST;
 
 let nameOrGroupName = PRESET.GetName();
 

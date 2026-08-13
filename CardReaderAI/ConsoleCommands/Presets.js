@@ -27,7 +27,7 @@ class PresetClass {
 	}
 
 	static get #TOTAL_EPOCH_AMOUNT_DEFAULT() {
-		return 1000;
+		return 10;
 	}
 
 	static get #EPOCH_LOG_ITERATION_DEFAULT() {
@@ -35,7 +35,7 @@ class PresetClass {
 	}
 
 	static get #DATA_GROUP_AMOUNT_DEFAULT() {
-		return 5;
+		return 10;
 	}
 
 	static get #HIDDEN_ACTIVATION_DEFAULT() {
@@ -88,7 +88,7 @@ class PresetClass {
 
 		incomingIsDeleteBeforeRun = true,
 
-		incomingTotalEpochAmount = 1000,
+		incomingTotalEpochAmount = 100,
 		incomingEpochLogIteration = 10,
 		incomingDataGroupAmount = 20,
 
@@ -345,7 +345,7 @@ class PresetClass {
 
 const DEFAULT_AMOUNT_OF_BOTS = 10;
 
-const IS_DELETE_BEFORE_RUN_DEFAULT = true;
+const IS_DELETE_BEFORE_RUN_DEFAULT = false;
 
 const TEST_ON_TRAINING = true;
 const TEST_ON_FINAL = false;

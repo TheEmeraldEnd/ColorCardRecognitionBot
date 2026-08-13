@@ -1,0 +1,3 @@
+Name of bot: Single_Final
+Date recorded: function Date() { [native code] }
+Last recorded acuracy = 0%
